@@ -1526,7 +1526,8 @@ function onSelectOutcome(section,outcome) {
     //
 
     function selectFromGallery() {
-        navigator.camera.getPicture( captureSuccess, function() { console.log("FAIL"); }, { quality: 50, destinationType: Camera.DestinationType.FILE_URI, sourceType: Camera.PictureSourceType.PHOTOLIBRARY  });
+        alert("HERE");
+        navigator.camera.getPicture( captureSuccess, function() { console.log("FAIL"); }, { correctOrientation: true, quality: 50, destinationType: Camera.DestinationType.FILE_URI, sourceType: Camera.PictureSourceType.PHOTOLIBRARY });
     }
 </script>
 
