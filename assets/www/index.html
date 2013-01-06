@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>App</title>
+    <script type="text/javascript" charset="utf-8" src="./cordova-2.0.0.js"></script>
+    <link rel="stylesheet"  href="css/themes/default/jquery.mobile-1.1.1.css" />
+    <link rel="stylesheet"  href="css/themes/default/summer.css" />
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery.mobile-1.1.1.js"></script>
+
+    <style>
+        .center-wrapper {
+            text-align: center;
+            width: 300px;
+            margin:0 auto;
+            margin-left:auto;
+            margin-right:auto;
+            align:center;
+            text-align:center;
+        }
+
+        .ui-footer .ui-controlgroup-horizontall {
+            display: table;
+            margin: 0 auto;
+        }
+    </style>
+
+</head>
+<body>
+
+<script src="js/db.js"></script>
+
+<script>
+
+document.addEventListener("deviceready",onDeviceReady,false);
+
+function onDeviceReady() {
+
+}
+
+
+String.prototype.trim = function() {
+    return this.replace(/^\s+|\s+$/g,"");
+}
+String.prototype.ltrim = function() {
+    return this.replace(/^\s+/,"");
+}
+String.prototype.rtrim = function() {
+    return this.replace(/\s+$/,"");
+}
+
+//Types of update... remove current then add for all?
+var UpdateContent = [];
+
+create = function(obj, func){
+    var f = function(){
+        var target = arguments.callee.target;
+        var func = arguments.callee.func;
+        return func.apply(target, arguments);
+    };
+
+    f.target = obj;
+    f.func = func;
+    return f;
+}
+
+function GenerateList() {
+    for(var i=0; i<Students.length; i++) {
+        $('#list').append('<li style="text-align:center" data-theme="c" class="ui-li ui-li-static ui-body-c">' + Students[i].name + '</li>');
+    }
+}
+
+function GenerateEditList() {
+
+    for(var i=0; i<Students.length; i++) {
+        var li = $("<li style='text-align:center; cursor:pointer;' data-theme='c' class='ui-li ui-li-static ui-body-c'>" + Students[i].name + "</li>");
+        var ci = i;
+        li[0].setAttribute('number',i);
+        li[0].onclick = create(ci, EditStudent);
+        $('#editlist').append(li);
+    }
+}
+
+function GenerateDeleteList() {
+
+    for(var i=0; i<Students.length; i++) {
+        var li = $("<li style='text-align:center; cursor:pointer;' data-theme='c' data-icon='delete' class='ui-li ui-li-static ui-body-c' >" + Students[i].name + "</li>");
+        var ci = i;
+        li[0].setAttribute('number',i);
+        li[0].onclick = create(ci, RemoveStudent);
+        $('#deletelist').append(li).trigger("create");
+    }
+}
+
+function GenerateCaptureImageList() {
+    for(var i=0; i<Students.length; i++) {
+        var li = $("<li style='text-align:center; cursor:pointer;' data-theme='c' data-icon='delete' class='ui-li ui-li-static ui-body-c' >" + Students[i].name + "</li>");
+        var ci = i;
+        li[0].setAttribute('number',i);
+        li[0].onclick = create(ci, InitCamera);
+        $('#captureimagelist').append(li).trigger("create");
+    }
+}
+
+function GenerateCaptureNoteList() {
+    for(var i=0; i<Students.length; i++) {
+        var li = $("<li style='text-align:center; cursor:pointer;' data-theme='c' data-icon='delete' class='ui-li ui-li-static ui-body-c' >" + Students[i].name + "</li>");
+        var ci = i;
+        li[0].setAttribute('number',i);
+        li[0].onclick = create(ci, InitNotes);
+        $('#capturenotelist').append(li).trigger("create");
+    }
+}
+
+function LoadEditImage() {
+    CurrentEdit = this;
+    location.href="#EditImagePage";
+}
+
+function LoadEditNote() {
+    CurrentEdit = this;
+    $('#textarea-edit').val('');
+    $('#textarea-edit').val(CurrentEdit.note);
+    location.href="#EditNotePage";
+}
+
+function AttemptUpdateNote() {
+    //Copy of notes..
+
+    var clone = CurrentStudent.notes.slice(0);
+    CurrentEdit.note = $('#textarea-edit').val();
+    clone[CurrentEdit.index] = $('#textarea-edit').val();
+    //Now we have updated array...
+    CallbackData = PrepDBData(clone);
+    UpdateStudentCustomCallbackInDB(CurrentStudent.name, PrepDBData(CurrentStudent.images), CallbackData, editNoteSuccess)
+
+}
+
+function AttemptDeleteNote() {
+    //Copy of notes...
+    var clone = CurrentStudent.notes.slice(0);
+    clone.splice(CurrentEdit.index,1);
+    CallbackData = clone;
+    UpdateStudentCustomCallbackInDB(CurrentStudent.name, PrepDBData(CurrentStudent.images), PrepDBData(clone), deleteNoteSuccess)
+
+}
+
+function AttemptUpdateImage() {
+    //Copy of images...
+    var clone = CurrentStudent.images.slice(0);
+    clone[CurrentEdit.index] = CurrentEdit.image;
+    //Now we have updated array...
+    CallbackData = PrepDBData(clone);
+    UpdateStudentCustomCallbackInDB(CurrentStudent.name, CallbackData, PrepDBData(CurrentStudent.notes), editImageSuccess)
+}
+
+function RemoveImage() {
+
+    //Copy of notes...
+    var clone = CurrentStudent.images.slice(0);
+    clone.splice(this.index,1);
+    CallbackData = clone;
+    UpdateStudentImagesCustomCallbackInDB(CurrentStudent.name, PrepDBData(clone), updateImageDeleteSuccess)
+
+}
+
+//Used to display / delete student images
+function GenerateImageGrid() {
+    if(CurrentStudent.name != "No Student Selected") {
+        //if(CurrentStudent.images.length < 1) { CurrentStudent.images = ["img/thumb.jpg","img/thumb.jpg","img/thumb.jpg","img/thumb.jpg"] }
+        var gridsNeeded = Math.ceil((CurrentStudent.images.length / 3));
+
+        var grids = ['a','b','c','d','e'];
+        var incGrid = 0;
+        if(gridsNeeded < 6) {
+            var cGrid = $("#StudentImages");
+            for(var i=0; i<CurrentStudent.images.length; i++) {
+
+                var a = $('(<a href="" style="float:left; margin-left:17px; width:60px; height:25px" data-direction="reverse" data-role="button" data-theme="f" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" class="ui-btn ui-shadow ui-btn-corner-all ui-btn-up-f"></a>');
+                var spanP = $('<span style="padding-bottom:0px; padding-top:0px; padding-left:0px; padding-right:0px; width:60px; height:25px" class="ui-btn-inner ui-btn-corner-all"></span>');
+                var spanC = $('<span style="width:40px; height:25px; font-size: 10px" class="ui-btn-text">Remove</span>');
+
+                $(spanP).append(spanC);
+                $(a).append(spanP);
+
+                if(i%3 == 0 && i != 0) {
+                    incGrid++;
+                }
+
+                if(incGrid == 0) {
+                    if(i == 0) {
+                        var li = $("<div class='ui-block-a' style='float:left'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+
+                    if(i == 1) {
+                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+                    if(i == 2) {
+                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+                }
+
+                if(incGrid == 1) {
+                    if(i == 3) {
+                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+
+                    if(i == 4) {
+                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+                    if(i == 5) {
+                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+
+                }
+
+                if(incGrid == 2) {
+
+                    if(i == 6) {
+                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+
+                    if(i == 7) {
+                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+                    if(i == 8) {
+                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+
+                }
+
+                if(incGrid == 3) {
+
+                    if(i == 9) {
+                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+
+                    if(i == 10) {
+                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+                    if(i == 11) {
+                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+
+                }
+                if(incGrid == 4) {
+
+                    if(i == 12) {
+                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+
+                    if(i == 13) {
+                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+                    if(i == 14) {
+                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+
+                }
+                if(incGrid == 5) {
+
+                    if(i == 15) {
+                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+
+                    if(i == 16) {
+                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+                    if(i == 17) {
+                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:50px; width:65px;'><img width='65' height='50' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+                        $(cGrid).append($(li));
+                        $(li).append(a);
+                        $(a).click(this.create({image:CurrentStudent.images[i], index:i},RemoveImage));
+                    }
+
+                }
+            }
+        }
+        else {
+            alert("Maximum number of images for student exceeded");
+        }
+    }
+}
+
+function GenerateNotes() {
+    if(CurrentStudent.name != "No Student Selected") {
+        var nList = $("#noteslist");
+        for(var i=0; i<CurrentStudent.notes.length; i++) {
+            if(i == 0) { var li = $("<li style='text-align:center; cursor:pointer; border:1px solid #AAA /*{c-body-border}*/' data-theme='c' class='ui-li ui-li-static ui-body-c'>" + CurrentStudent.notes[i] + "</li>"); }
+            else { var li = $("<li style='text-align:center; cursor:pointer; border-left:1px solid #AAA; border-right:1px solid #AAA' data-theme='c' class='ui-li ui-li-static ui-body-c'>" + CurrentStudent.notes[i] + "</li>"); }
+
+            var ci = i;
+            li[0].setAttribute('number',i);
+            li[0].onclick = create({note: CurrentStudent.notes[i], index: i}, LoadEditNote);
+            $(nList).append(li);
+        }
+    }
+}
+
+function UpdateTeacherEmail() {
+
+    var teacherEmail = $('#Tinput').val();
+
+    if(teacherEmail != '' && teacherEmail != undefined && validateEmail(teacherEmail)) {
+        CallbackData = teacherEmail;
+        AddTeacherEmail(teacherEmail);
+    }
+    else {
+        alert("You must enter an email for the teacher");
+    }
+
+}
+
+function AddStudent() {
+    var newStudent = $('#Sinput').val();
+    var email = $('#Einput').val();
+    if(newStudent != "") {
+        CallbackData = [newStudent,email];
+        AddValueToDB(newStudent, "","",email);
+    }
+    else {
+        alert("You must enter a name for the student");
+    }
+
+    newStudent = $('#Sinput').val("");
+    email = $('#Einput').val("");
+}
+
+function UpdateEmail() {
+    var email = $('#UEinput').val();
+    if(email != "") {
+        CallbackData = email;
+        UpdateStudentParentEmail(email, CurrentStudent.name);
+    }
+    else {
+        alert("You must input an email address");
+    }
+}
+
+
+function EditStudent(e) {
+    var array_index = e.target.getAttribute("number");
+    CurrentStudent = Students[array_index];
+    Application.UpdateStudentsImages();
+    Application.UpdateStudentNotes();
+    location.href="#four";
+
+}
+
+/*
+ Camera Functionality
+ - Init - Setup current student to prep for camera
+ - Start Camera loads camera
+ - onSuccess saves
+ - OnFailure lets you know fail
+ */
+
+function InitNotes(e) {
+    var array_index = e.target.getAttribute("number");
+    CurrentStudent = Students[array_index];
+    location.href="#writenote";
+}
+
+function submitNote() {
+    var Note = $('#textarea-a').val();
+    Note = Note.trim();
+    if(Note != "") {
+        CallbackData = Note;
+        var arr = CurrentStudent.notes.slice(0);
+        arr.push(Note);
+        UpdateStudentNotesInDB(CurrentStudent.name, PrepDBData(CurrentStudent.images), PrepDBData(arr));
+    }
+
+}
+
+function InitCamera(e) {
+    var array_index = e.target.getAttribute("number");
+    CurrentStudent = Students[array_index];
+    StartCamera();
+}
+
+function StartCamera() {
+    if(navigator.camera){
+        navigator.camera.getPicture(onSuccess, onFail, { quality: 50, correctOrientation: true, destinationType: Camera.DestinationType.FILE_URI });
+    }
+    else {
+        //location.href = "#captureimageALT";
+        onSuccess("img/thumb.jpg")
+    }
+}
+
+function onSuccess(imageURI) {
+    CallbackData = imageURI;
+    var arr = CurrentStudent.images.slice(0);
+    arr.push(imageURI);
+    UpdateStudentImagesInDB(CurrentStudent.name, PrepDBData(arr), PrepDBData(CurrentStudent.notes));
+
+}
+
+function onFail(message) {
+    //Nothing to do atm...
+}
+
+function onTermSelection(term) {
+    ReportTerm = term;
+    $('#choosetermlist').empty();
+    $('#choosetermlist').append('<li data-theme="e" style="text-align:center" class="ui-li ui-li-static ui-body-e"> My Children </li>');
+    GenerateChooseTermList();
+    location.href = '#ChooseStudentTerm';
+}
+
+function GenerateChooseTermList() {
+    if(ReportTerm) {
+        for(var i=0; i<Students.length; i++) {
+            if (Students[i][ReportTerm] == 0 || ReportTerm == "Other" ) {
+                var li = $('<li style="text-align:center; cursor:pointer;border-left:1px solid #AAA; border-right:1px solid #AAA; border-bottom:1px solid #AAA; background-color:#DDD" class="ui-li ui-li-static">' + Students[i].name + '</li>');
+
+            }
+            else {
+                var li = $('<li style="text-align:center; cursor:pointer;border-left:1px solid #AAA; border-right:1px solid #AAA; border-bottom:1px solid #AAA; background-color:#BF3030" class="ui-li ui-li-static">' + Students[i].name + '</li>');
+
+            }
+            $(li)[0].onclick = onChooseTermListStudentClick;
+            $(li)[0].setAttribute("number",i);
+            $('#choosetermlist').append(li);
+
+        }
+    }
+}
+
+function onChooseTermListStudentClick(e) {
+    var array_index = e.target.getAttribute("number");
+    CurrentStudent = Students[array_index];
+    Application.UpdateStudentsImages();
+    Application.UpdateStudentNotes();
+    location.href = "#ChooseTemplate";
+}
+
+function onTemplateClick(template) {
+    if(template == 'A') { Template = TemplateOne; ReportTemplate = "A"; }
+    if(template == 'B') { Template = TemplateTwo; ReportTemplate = "B";}
+    if(template == 'C') { Template = TemplateThree; ReportTemplate = "C";}
+    if(template == 'D') { Template = TemplateFour; ReportTemplate = "D"; }
+
+    location.href = "#ReportFill"
+}
+
+function saveCaption () {
+    var text = $(document.getElementById('captiontext')).val();
+    CurrentCaptionElement.setAttribute("caption",text);
+    $(document.getElementById('captiontext')).val('');
+    //alert("Caption Saved");
+}
+function setCaptionElement (el) {
+    CurrentCaptionElement = el;
+}
+
+function GenerateReportImageGrid() {
+    if(CurrentStudent.name != "No Student Selected") {
+        var gridsNeeded = Math.ceil((CurrentStudent.images.length / 3));
+
+        var grids = ['a','b','c','d','e'];
+        var incGrid = 0;
+        if(gridsNeeded < 6) {
+            var cGrid = $("#ReportImages");
+            ReportCheckBoxesImages = [];
+            for(var i=0; i<CurrentStudent.images.length; i++) {
+
+                var divContainer = $('<div class="ui-checkbox" style="width:60px; margin-left:17px"></div>');
+                var labelContainer = $('<label data-corners="true" data-shadow="false" data-iconshadow="true" data-wrapperels="span" data-icon="checkbox-off" data-theme="c" class="ui-btn ui-btn-corner-all ui-btn-icon-left ui-checkbox-off ui-btn-up-c"></label>');
+                $(divContainer).append(labelContainer);
+
+                var spanC = $('<span class="ui-btn-inner ui-btn-corner-all"> </span>');
+                var spanChildB = $(' <span class="ui-icon ui-icon-checkbox-off ui-icon-shadow" style="margin-left:5px">&nbsp;</span>');
+
+
+                var btn = $('<a style="width:90px;height:25px" onclick="setCaptionElement(this)" data-icon="" href="#addcaption" data-rel="dialog" data-transition="pop" data-role="button" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="c" class="ui-btn ui-shadow ui-btn-corner-all ui-btn-icon-left ui-btn-up-c">');
+                var btnInner = $('<span style="padding: 3px 0px 0px 0px; width:90px; font-size:14px" class="ui-btn-inner ui-btn-corner-all"><span class="ui-btn-text">Add Caption</span></span>');
+
+                $(btn).append(btnInner);
+
+                $(labelContainer).append(spanC);
+                $(spanC).append(spanChildB);
+
+                //ReportCheckBoxesImages.push($(input).children()[0]);
+                //$($(input).children()[0]).change(onChangeImageChange);
+
+                if(incGrid == 0) {
+
+                    if(i == 0) {
+                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+
+
+                    }
+
+                    if(i == 1) {
+                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //  $(li).append(divContainer);
+                        //  $(cGrid).append(li);
+                    }
+                    if(i == 2) {
+                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //  $(li).append(divContainer);
+                        //  $(cGrid).append(li);
+                    }
+                }
+
+                if(incGrid == 1) {
+
+                    if(i == 3) {
+                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //  $(li).append(divContainer);
+                        //  $(cGrid).append(li);
+
+                    }
+
+                    if(i == 4) {
+                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //   $(li).append(divContainer);
+                        //  $(cGrid).append(li);
+                    }
+                    if(i == 5) {
+                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //   $(li).append(divContainer);
+                        //   $(cGrid).append(li);
+                    }
+
+                }
+
+                if(incGrid == 2) {
+
+                    if(i == 6) {
+                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //    $(li).append(divContainer);
+                        //    $(cGrid).append(li);
+
+                    }
+
+                    if(i == 7) {
+                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //   $(li).append(divContainer);
+                        //    $(cGrid).append(li);
+                    }
+                    if(i == 8) {
+                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //   $(li).append(divContainer);
+                        //   $(cGrid).append(li);
+                    }
+
+                }
+
+                if(incGrid == 3) {
+
+                    if(i == 9) {
+                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //   $(li).append(divContainer);
+                        //  $(cGrid).append(li);
+
+                    }
+
+                    if(i == 10) {
+                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //  $(li).append(divContainer);
+                        //  $(cGrid).append(li);
+                    }
+                    if(i == 11) {
+                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //  $(li).append(divContainer);
+                        //  $(cGrid).append(li);
+                    }
+
+                }
+                if(incGrid == 4) {
+
+                    if(i == 12) {
+                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //  $(li).append(divContainer);
+                        //  $(cGrid).append(li);
+
+                    }
+
+                    if(i == 13) {
+                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //    $(li).append(divContainer);
+                        //   $(cGrid).append(li);
+                    }
+                    if(i == 14) {
+                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //  $(li).append(divContainer);
+                        //   $(cGrid).append(li);
+                    }
+
+                }
+                if(incGrid == 5) {
+
+                    if(i == 15) {
+                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //  $(li).append(divContainer);
+                        // $(cGrid).append(li);
+
+                    }
+
+                    if(i == 16) {
+                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //   $(li).append(divContainer);
+                        //   $(cGrid).append(li);
+                    }
+                    if(i == 17) {
+                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        li[0].setAttribute('number',i);
+                        //    $(li).append(divContainer);
+                        //    $(cGrid).append(li);
+                    }
+                }
+                if(i%3 == 0 && i != 0) {
+                    incGrid++;
+                }
+                $(li).append(btn);
+                $(li).append(divContainer);
+                $(cGrid).append(li);
+
+                li[0].setAttribute("checked","false");
+                btn[0].setAttribute("caption","");
+                $(li).click(this.create({li: li[0],x:spanChildB, y:labelContainer, image:CurrentStudent.images[i], caption:btn[0]},onImagesCheckboxClick));
+
+            }
+        }
+        else {
+            alert("Maximum number of images for student exceeded");
+        }
+    }
+}
+
+function onImagesCheckboxClick(e) {
+
+    var isChecked = this.li.getAttribute("checked");
+
+    if(isChecked == "true") {
+        $(this.x).removeClass('ui-icon-checkbox-on');
+        $(this.y).removeClass('ui-checkbox-on');
+        $(this.x).addClass('ui-icon-checkbox-off');
+        $(this.y).addClass('ui-checkbox-off');
+        this.li.setAttribute("checked","false");
+
+        var index = ReportCheckBoxesImages.indexOf(this.image);
+        ReportCheckBoxesImages.splice(index, 1);
+        ReportCheckBoxesCaption.splice(index, 1);
+    }
+    else {
+        if(ReportCheckBoxesImages.length < Template.images) {
+            $(this.x).removeClass('ui-icon-checkbox-off');
+            $(this.y).removeClass('ui-checkbox-off');
+            $(this.x).addClass('ui-icon-checkbox-on');
+            $(this.y).addClass('ui-checkbox-on');
+            this.li.setAttribute("checked","true");
+
+            ReportCheckBoxesImages.push(this.image);
+            ReportCheckBoxesCaption.push(this.caption);
+        }
+    }
+}
+
+function GenerateReportNotes() {
+    if(CurrentStudent.name != "No Student Selected") {
+        ReportCheckBoxesNotes = [];
+        var nList = $("#ReportNotes");
+        for(var i=0; i<CurrentStudent.notes.length; i++) {
+
+            var divContainer = $('<div class="ui-checkbox"></div>');
+            var labelContainer = $('<label data-corners="true" data-shadow="false" data-iconshadow="true" data-wrapperels="span" data-icon="checkbox-off" data-theme="c" class="ui-btn ui-btn-corner-all ui-btn-icon-left ui-checkbox-off ui-btn-up-c"></label>');
+            //var input = $('<input type="checkbox" name="outcome" id="outcome">');
+            $(divContainer).append(labelContainer);
+
+            var spanC = $('<span class="ui-btn-inner ui-btn-corner-all"> </span>');
+            var spanChildA = $(' <span class="ui-btn-text">'+ CurrentStudent.notes[i] +' </span>');
+            var spanChildB = $(' <span class="ui-icon ui-icon-checkbox-off ui-icon-shadow">&nbsp;</span>');
+
+            $(labelContainer).append(spanC);
+            $(spanC).append(spanChildA,spanChildB);
+
+            var li = $('<li style="text-align:center;cursor:pointer;" data-theme="c" class="ui-li ui-li-static ui-body-c"></li>');
+            $(li).append(divContainer);
+
+            li[0].setAttribute("checked","false");
+            $(li).click(this.create({li: li[0],x:spanChildB, y:labelContainer, note:CurrentStudent.notes[i]},onNotesCheckboxClick));
+
+            $(nList).append(li);
+        }
+    }
+}
+
+function onNotesCheckboxClick(e) {
+    var isChecked = this.li.getAttribute("checked");
+
+    if(isChecked == "true") {
+        $(this.x).removeClass('ui-icon-checkbox-on');
+        $(this.y).removeClass('ui-checkbox-on');
+        $(this.x).addClass('ui-icon-checkbox-off');
+        $(this.y).addClass('ui-checkbox-off');
+        this.li.setAttribute("checked","false");
+
+        var index = ReportCheckBoxesNotes.indexOf(this.note);
+        ReportCheckBoxesNotes.splice(index, 1);
+    }
+    else {
+        $(this.x).removeClass('ui-icon-checkbox-off');
+        $(this.y).removeClass('ui-checkbox-off');
+        $(this.x).addClass('ui-icon-checkbox-on');
+        $(this.y).addClass('ui-checkbox-on');
+        this.li.setAttribute("checked","true");
+
+        ReportCheckBoxesNotes.push(this.note);
+
+    }
+}
+
+function onSubmitReport() {
+
+    SendData = {};
+    //Get title
+    var title = $("#ReportTitle").val();
+    //Get Date
+    var date = $("#ReportDate").val();
+
+    //List of images
+    var images = ReportCheckBoxesImages;
+
+    //List of image captions
+    var captions = [];
+    for(var i=0;i<ReportCheckBoxesCaption.length; i++) {
+        captions[i] = ReportCheckBoxesCaption[i].getAttribute('caption');
+    }
+
+    //List of notes
+    var NOTES = ReportCheckBoxesNotes;
+
+    //Get email address
+    var email = document.getElementById("eInputReport").value;
+
+    //Get follow up & evaluation if any
+    var followup = $("#followuptext").val();
+    var evaluation = $("#evaluationtext").val();
+
+    //Check title / date / email
+
+    SendData.title = title;
+    SendData.date = date;
+    SendData.images = images.length;
+    SendData.captions = captions;
+    SendData.notes = NOTES;
+    SendData.email = email;
+    SendData.followupexperience = followup;
+    SendData.evaluation = evaluation;
+    SendData.type = ReportType;
+    SendData.imageData = images.slice(0);
+    SendData.captionData = captions.slice(0);
+    SendData.Background = SelectedBackground;
+    SendData.Font = SelectedFont;
+    SendData.FontColour = SelectedFontColour;
+
+    SendData.uuid = "LOLOLOL";//device.uuid;
+    SendData.template = ReportTemplate;
+
+    if(SendData.email == "" || SendData.email == null || validateEmail(SendData.email) == false) {
+        alert("Must enter a valid email");
+    }
+    else {
+        if(SendData.title == "" || SendData.title == null) { alert("Must enter a title for the report");}
+        else {
+            if(SendData.date == "" || SendData.date == null) {alert("Must enter a date for the report")}
+            else {
+                PrepData();
+            }
+        }
+    }
+
+
+    //Sendddd
+
+    //On call back update DB
+
+}
+
+function validateEmail(email) {
+    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}
+
+
+/*
+ Outcome Selection Page Generation
+ */
+function GenerateOutcomesChecklist(data) {
+
+    var oList = $("#outcomelist");
+    $(oList).empty();
+    for(var i=0; i<data.length; i++) {
+
+        var divContainer = $('<div class="ui-checkbox"></div>');
+        var labelContainer = $('<label data-corners="true" data-shadow="false" data-iconshadow="true" data-wrapperels="span" data-icon="checkbox-off" data-theme="i" class="ui-btn ui-btn-corner-all ui-btn-icon-left ui-checkbox-off ui-btn-up-i"></label>');
+        //var input = $('<input type="checkbox" name="outcome" id="outcome">');
+        $(divContainer).append(labelContainer);
+
+        var spanC = $('<span class="ui-btn-inner ui-btn-corner-all"> </span>');
+        var spanChildA = $(' <span class="ui-btn-text">'+ data[i] +' </span>');
+        var spanChildB = $(' <span class="ui-icon ui-icon-checkbox-off ui-icon-shadow">&nbsp;</span>');
+
+        $(labelContainer).append(spanC);
+        $(spanC).append(spanChildA,spanChildB);
+
+        var li = $('<li style="text-align:center;cursor:pointer;" data-theme="i" class="ui-li ui-li-static ui-body-i"></li>');
+        li[0].setAttribute("checked","false");
+
+        $(li).click(this.create({li: li[0],x:spanChildB, y:labelContainer, text:spanChildA},onCheckboxClick));
+        $(li).append(divContainer);
+
+        $(oList).append(li);
+
+        checkChecked(li[0], data[i],spanChildB,labelContainer, spanChildA)
+
+    }
+}
+
+function checkChecked(el, text,x,y, spanText) {
+
+    for(var i=0; i<ReportOutcomes.length;i++) {
+        if(ReportOutcomes[i] == $(spanText).text()) {
+            $(x).removeClass('ui-icon-checkbox-off');
+            $(y).removeClass('ui-checkbox-off');
+            $(x).addClass('ui-icon-checkbox-on');
+            $(y).addClass('ui-checkbox-on');
+            el.setAttribute("checked","true");
+        }
+
+    }
+
+}
+
+function onCheckboxClick(e) {
+    var isChecked = this.li.getAttribute("checked");
+
+    if(isChecked == "true") {
+        $(this.x).removeClass('ui-icon-checkbox-on');
+        $(this.y).removeClass('ui-checkbox-on');
+        $(this.x).addClass('ui-icon-checkbox-off');
+        $(this.y).addClass('ui-checkbox-off');
+        this.li.setAttribute("checked","false");
+
+        var index = ReportOutcomes.indexOf($(this.text).text());
+        ReportOutcomes.splice(index, 1);
+    }
+    else {
+        $(this.x).removeClass('ui-icon-checkbox-off');
+        $(this.y).removeClass('ui-checkbox-off');
+        $(this.x).addClass('ui-icon-checkbox-on');
+        $(this.y).addClass('ui-checkbox-on');
+        this.li.setAttribute("checked","true");
+
+        ReportOutcomes.push($(this.text).text());
+    }
+}
+
+function ClearHistory() {
+    CallbackData = ReportTerm;
+    ClearTerms();
+
+
+}
+
+function onSelectOutcome(section,outcome) {
+    var outcomeData = data[section][outcome];
+    //Add notes?
+    if(ReportType == "" || ReportType == section) {
+        ReportType = section;
+        GenerateOutcomesChecklist(outcomeData);
+        location.href = '#OutcomeSelection';
+    }
+    else {
+        ReportOutcomes = [];
+        ReportType = section;
+        GenerateOutcomesChecklist(outcomeData);
+        location.href = '#OutcomeSelection'
+    }
+}
+
+</script>
+
+<script src="js/EditMethods.js"></script>
+<script src="js/RemoveMethods.js"></script>
+
+
+
+<div data-role="page" id="one" class="type-home">
+
+    <div data-role="header" data-theme="e">
+        <h1 style="white-space:normal">Early Childhood Made Easy</h1>
+    </div>
+
+    <div id="MainWindow" data-role="content">
+
+
+        <div data-role="collapsible" data-collapsed="true" data-theme = "b">
+            <h3>My Class</h3>
+
+
+            <a id="Edit" href="#three" data-role="button">View Children</a>
+            <a id="Add" href="#two" data-role="button">Add Child</a>
+            <a id="Remove" href="#removestudent" data-role="button">Remove Child</a>
+            <a id="" href="#teachersemail" data-role="button">Teacher's Email</a>
+
+
+        </div>
+
+        <div data-role="collapsible" data-collapsed = "true" data-theme = "d">
+            <h3>Capture Data</h3>
+
+            <!--<a id="Image" href="#captureimage" data-role="button">Capture Picture</a>-->
+            <a id="Notes" href="#capturenotes" data-role="button">Write Observations</a>
+
+        </div>
+
+        <div data-role="collapsible" data-collapsed = "true" data-theme = "a">
+            <h3>Create Learning Story</h3>
+
+            <div data-role="controlgroup">
+                <a id="FReport" onclick="onTermSelection('TermOne');" data-role="button">Generate Learning Story</a>
+            </div>
+
+        </div>
+
+
+
+    </div>
+</div>
+
+<!-- Start of second page: #two -->
+<div data-role="page" id="two">
+
+    <div data-role="header" data-theme="e">
+        <h1>Add Child</h1>
+    </div>
+
+    <div data-role="content">
+
+
+        <div class="ui-grid-solo">
+            <input id="Sinput" type="text" name="name" id="basic" value=""  placeholder="Child Name" />
+        </div>
+
+        <div class="ui-grid-solo">
+            <input id="Einput" type="text" name="name" id="basic" value=""  placeholder="Parent's Email" />
+        </div>
+
+        <div class="ui-grid-solo" style="margin-top:30px">
+
+            <a onclick="AddStudent()" data-mini="false" data-role="button" data-icon="plus" style="">Add Child</a>
+        </div>
+
+
+        <div class="ui-grid-b" style="margin-top:30px">
+            <div class="ui-block-a"></div>
+            <div class="ui-block-b"><a href="#one" data-direction="reverse" data-role="button" data-theme="i">Back</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+
+</div><!-- /page two -->
+
+<!-- Start of third page: #three -->
+<div data-role="page" id="three">
+
+    <div data-role="header" data-theme="e">
+        <h1>View Children</h1>
+    </div>
+
+    <div data-role="content">
+
+        <ul id="editlist" data-role="listview" data-theme="b" style="margin-top:10px">
+            <li data-theme="e" style="text-align:center"> My Children </li>
+        </ul>
+
+        <div class="ui-grid-b" style="margin-top:30px">
+            <div class="ui-block-a"></div>
+            <div class="ui-block-b"><a href="#one" data-direction="reverse" data-role="button" data-theme="i">Back</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+
+
+</div><!-- /page three -->
+
+<!-- Start of fourth page (SUB PAGE OF THREE): #four -->
+<div data-role="page" id="four">
+
+    <div data-role="header" data-theme="e">
+        <h1>View Child</h1>
+    </div>
+
+    <div id="MainWindow" data-role="content">
+
+
+
+        <div data-role="collapsible" data-collapsed="true" data-theme = "a">
+            <h3>Change Child Name</h3>
+
+            <fieldset class="ui-grid-a">
+                <div class="ui-block-a"><input id="NewNameInput" type="text" name="name" id="basic" value=""  placeholder="Child Name" /></div>
+                <div class="ui-block-b"> <a style="margin-top:10px" onclick="EditChangeName()" data-mini="true" data-role="button" data-icon="check" data-inline="true" data-theme="i">Confirm</a></div>
+
+            </fieldset>
+
+        </div>
+        <!--
+        <div data-role="collapsible" data-collapsed = "true" data-theme = "b">
+            <h3>View Child Images</h3>
+            <div id="StudentImages" class="ui-grid-b">
+            </div>
+        </div>
+        -->
+
+
+        <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
+            <h3>View Child Observations</h3>
+            <ul id="noteslist" data-role="listview" data-theme="b" style="margin-bottom:5px; margin-top: 5px">
+            </ul>
+        </div>
+
+
+        <div data-role="collapsible" data-collapsed = "true" data-theme = "d">
+            <h3>Update Parent's Email</h3>
+            <fieldset class="ui-grid-a" style="">
+                <div class="ui-block-a"> <input id="UEinput" type="text" name="name" id="basic" value=""  placeholder="Parent's Email" /></div>
+                <div class="ui-block-b"> <a style="margin-top:10px" onclick="UpdateEmail()" data-mini="true" data-role="button" data-icon="check" data-inline="true" data-theme = "i">Update</a></div>
+
+            </fieldset>
+
+        </div>
+
+        <div class="ui-grid-b" style="margin-top:30px">
+            <div class="ui-block-a"></div>
+            <div class="ui-block-b"><a href="#three" data-direction="reverse" data-role="button" data-theme="i">Back</a></div>
+        </div><!-- /grid-b -->
+
+
+    </div>
+
+
+</div>
+
+<!-- Start of third page: #RemoveStudent -->
+<div data-role="page" id="removestudent">
+
+    <div data-role="header" data-theme="c">
+        <h1>Remove Child</h1>
+    </div>
+
+    <div data-role="content">
+
+
+        <ul id="deletelist" data-role="listview" data-theme="b" style="margin-top:10px">
+            <li data-theme="e" style="text-align:center"> My Children </li>
+        </ul>
+
+        <div class="ui-grid-b" style="margin-top:30px">
+            <div class="ui-block-a"></div>
+            <div class="ui-block-b"><a href="#one" data-direction="reverse" data-role="button" data-theme="i">Back</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+
+
+</div><!-- /page RemoveStudent -->
+
+<!-- Start of Fourth page: #Teacher's Email -->
+<div data-role="page" id="teachersemail">
+
+    <div data-role="header" data-theme="c">
+        <h1>Teacher's Email</h1>
+    </div>
+
+    <div data-role="content">
+
+
+        <fieldset class="ui-grid-a" style="">
+            <div class="ui-block-a"> <input id="Tinput" type="text" name="name" id="basic" value=""  placeholder="Teacher's Email" /></div>
+            <div class="ui-block-b"> <a style="margin-top:10px" onclick="UpdateTeacherEmail()" data-mini="true" data-role="button" data-icon="check" data-inline="true">Update</a></div>
+        </fieldset>
+
+        <div class="ui-grid-b" style="margin-top:30px">
+            <div class="ui-block-a"></div>
+            <div class="ui-block-b"><a href="#one" data-direction="reverse" data-role="button" data-theme="i">Back</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+
+
+</div><!-- /page RemoveStudent -->
+
+<!-- Start of third page: #CaptureImageALT -->
+<div data-role="page" id="captureimageALT">
+
+    <div data-role="header" data-theme="c">
+        <h1>Select Images</h1>
+    </div>
+
+    <div data-role="content">
+
+        <input name="filesToUpload[]" id="filesToUpload" type="file" multiple="" />
+
+        <div class="ui-grid-b" style="margin-top:30px">
+            <div class="ui-block-a"></div>
+            <div class="ui-block-b"><a href="#captureimage" data-direction="reverse" data-role="button" data-theme="i">Back</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+
+
+</div><!-- /page captureimage -->
+
+<div data-role="page" id="captureimage">
+
+    <div data-role="header" data-theme="c">
+        <h1 style="white-space: normal">Capture Image For</h1>
+    </div>
+
+    <div data-role="content">
+
+        <ul id="captureimagelist" data-role="listview" data-theme="b" style="margin-top:10px">
+            <li data-theme="e" style="text-align:center"> My Children </li>
+        </ul>
+
+        <div class="ui-grid-b" style="margin-top:30px">
+            <div class="ui-block-a"></div>
+            <div class="ui-block-b"><a href="#one" data-direction="reverse" data-role="button" data-theme="i">Back</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+
+
+</div><!-- /page captureimage -->
+
+<!-- Start of third page: #RecieveNotesFromUser -->
+<div data-role="page" id="capturenotes">
+
+    <div data-role="header" data-theme="e">
+        <h1>Child Observing</h1>
+    </div>
+
+    <div data-role="content">
+
+        <ul id="capturenotelist" data-role="listview" data-theme="b" style="margin-top:10px">
+            <li data-theme="e" style="text-align:center"> My Children </li>
+        </ul>
+
+        <div class="ui-grid-b" style="margin-top:30px">
+            <div class="ui-block-a"></div>
+            <div class="ui-block-b"><a href="#one" data-direction="reverse" data-role="button" data-theme="i">Back</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+
+
+</div><!-- /page captureimage -->
+
+<!-- Start of third page: #RecieveNotesFromUser -->
+<div data-role="page" id="writenote">
+
+    <div data-role="header" data-theme="e">
+        <h1>Compose Note</h1>
+    </div>
+
+    <div data-role="content" >
+
+        <div class="ui-grid-solo">
+            <label for="textarea-a"></label>
+            <textarea name="textarea" id="textarea-a"></textarea>
+        </div>
+
+        <div class="ui-grid-a" style="margin-top:30px">
+
+            <div class="ui-block-a"><a onclick="submitNote()" data-icon="check" href="" data-role="button" data-theme="i">Add</a></div>
+            <div class="ui-block-b"><a  data-icon="delete" href="#capturenotes" data-role="button" data-theme="i">Cancel</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+
+
+</div><!-- /page WriteNote -->
+
+<!-- Start of third page: #EditNotePage -->
+<div data-role="page" id="EditNotePage">
+
+    <div data-role="header" data-theme="c">
+        <h1>Edit Note</h1>
+    </div>
+
+    <div data-role="content">
+
+        <div class="ui-grid-solo">
+            <label for="textarea-edit"></label>
+            <textarea name="textarea" id="textarea-edit"></textarea>
+
+        </div>
+
+        <div class="ui-grid-a" >
+            <div class="ui-block-a"><a onclick="AttemptUpdateNote()" data-icon="check" href="" data-role="button">Update</a></div>
+            <div class="ui-block-b"><a onclick="AttemptDeleteNote()"  data-icon="delete" href="" data-role="button">Delete</a></div>
+        </div><!-- /grid-b -->
+
+        <div class="ui-grid-b" style="margin-top:30px">
+            <div class="ui-block-a"></div>
+            <div class="ui-block-b"><a href="#four" data-direction="reverse" data-role="button" data-theme="i">Back</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+
+</div><!-- /page EditNotePage -->
+
+<!-- Start of Report Generation Pages: #Choose Term -->
+<div data-role="page" id="ChooseTerm">
+
+    <div data-role="header" data-theme="c">
+        <h1>Choose Term</h1>
+    </div>
+
+    <div data-role="content">
+
+        <div class="ui-grid-solo" >
+            <a href="" onclick="onTermSelection('TermOne');" data-role="button" data-theme="c">Term One</a>
+        </div>
+
+        <div class="ui-grid-solo" >
+            <a href="" onclick="onTermSelection('TermTwo');" data-role="button" data-theme="c">Term Two</a>
+        </div>
+
+        <div class="ui-grid-solo" >
+            <a href="" onclick="onTermSelection('TermThree');" data-role="button" data-theme="c">Term Three</a>
+        </div>
+
+        <div class="ui-grid-solo">
+            <a href="" onclick="onTermSelection('TermFour');" data-role="button" data-theme="c">Term Four</a>
+        </div>
+
+        <div class="ui-grid-solo" >
+            <a href="" onclick="onTermSelection('Other');" data-role="button" data-theme="e">Other</a>
+        </div>
+
+        <div class="ui-grid-b" style="margin-top:30px">
+            <div class="ui-block-a"></div>
+            <div class="ui-block-b"><a href="#one" data-direction="reverse" data-role="button" data-theme="i">Back</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+
+
+</div>
+<!-- End of Choose Term Page -->
+
+<!-- Start of Choose Student for Term page: #Choose Student Term -->
+<div data-role="page" id="ChooseStudentTerm">
+
+    <div data-role="header" data-theme="e">
+        <h1>Select Child</h1>
+    </div>
+
+    <div data-role="content">
+
+        <div class="ui-grid-a">
+            <div class="ui-block-a center-wrapper">
+                <div id="redlegend"  style="width: 15px; height: 15px; float:right; margin-left:5px; margin-right:10px; margin-top:5px; background-color:#BF3030"></div>
+                <label for="" style="text-align: right; margin-top:3px; float:right;">Not Submitted:</label>
+
+            </div>
+            <div class="ui-block-b center-wrapper">
+
+                <label for="" style="text-align: right; float:left; margin-right:5px; margin-left:10px; margin-top:5px;">Submitted:</label>
+                <div id="greylegend"  style="width: 15px; height: 15px; float:left; margin-top:5px;  background-color:#DDD"></div>
+
+            </div>
+        </div>
+        <ul id="choosetermlist" data-role="listview" data-theme="b" style="margin-top:10px">
+            <li data-theme="e" style="text-align:center"> My Children </li>
+        </ul>
+
+        <div class="ui-grid-b" style="margin-top:30px">
+            <div class="ui-block-a"></div>
+            <div class="ui-block-b"><a href="#one" data-direction="reverse" data-role="button" data-theme="i">Back</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+
+    <div data-role="footer" class="footer-docs ui-footer" data-theme="" style="background-color: ''" role="contentinfo">
+        <div data-role="controlgroup" class="ui-footer ui-controlgroup-horizontall" data-type="horizontal" style="text-align:center">
+            <a onclick="ClearHistory()" data-theme="e" data-role="button" data-icon="minus" style="text-align:center; margin-top:5px; margin-bottom:5px;">Clear Submission History</a>
+        </div>
+    </div>
+</div><!-- /page Choose Student Term -->
+
+<!-- Start of Choose Student for Term page: #Choose Template -->
+<div data-role="page" id="ChooseTemplate">
+
+    <div data-role="header" data-theme="e">
+        <h1 style="white-space:normal">Learning Story Template</h1>
+    </div>
+
+    <div data-role="content">
+
+        <div class="ui-grid-a">
+            <div class="ui-block-a">
+                <div href="" onclick="onTemplateClick('A')" class="ui-bar ui-bar-a" style="height:205px;text-align: center; background-image:url(img/rsz_templateone.png);background-position:center;background-repeat:no-repeat;cursor:pointer;"></div>
+
+            </div>
+            <div class="ui-block-b">
+                <div href="" onclick="onTemplateClick('B')" class="ui-bar ui-bar-b" style="height:205px;text-align: center;background-image:url(img/rsz_templatetwo.png);background-position:center;background-repeat:no-repeat;cursor:pointer;"></div>
+            </div>
+        </div><!-- /grid-b -->
+
+        <div class="ui-grid-solo">
+            <div class="ui-block-a">
+                <p style="text-align:center; font-style:italic">Both templates allow up to three images to be attached</p>
+            </div>
+        </div>
+
+        <div class="ui-grid-b" style="margin-top:30px">
+            <div class="ui-block-a"></div>
+            <div class="ui-block-b"><a href="#ChooseStudentTerm" data-direction="reverse" data-role="button" data-theme="i">Back</a></div>
+            <div class="ui-block-c"></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+
+
+</div><!-- /page Choose Template -->
+
+<!-- Start of Report Fill: #Report Fill -->
+<div data-role="page" id="ReportFill">
+
+<div data-role="header" data-theme="e">
+    <h1>Learning Story</h1>
+</div>
+
+<div data-role="content">
+
+<div data-role="collapsible" data-collapsed="true" data-theme = "a">
+    <h3>Title & Date</h3>
+
+    <div data-role="controlgroup">
+        <div data-role="controlgroup">
+            <div data-role="fieldcontain">
+                <input style="" placeholder="Report Title" data-inline="true" type="text" name="name" id="ReportTitle" value=""  />
+            </div>
+
+            <div data-role="fieldcontain">
+                <input type="text" name="date" id="ReportDate" value=""  class="ui-input-text ui-body-c ui-corner-all ui-shadow-inset" placeholder="DD/MM/YYYY">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function captureSuccess(uri) {
+
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function() {}, function() {});
+        window.resolveLocalFileSystemURI(uri, function(x) {
+            console.log(x);
+            console.log(x.name);
+            console.log(x.fullPath);
+            x.file( onResolveSuccess, function(z) { console.log(z);})
+        }, function() {} );
+
+    }
+
+    function onResolveSuccess (file) {
+
+        console.log(file.name);
+        console.log(file.type);
+        console.log(file.fullPath);
+        console.log(file.lastModifiedDate);
+        console.log(file.size);
+
+        $.support.cors = true;
+        $.mobile.allowCrossDomainPages = true;
+        $.mobile.pushStateEnabled = false;
+
+        var laa = new FormData();
+        laa.append("files["+file.name+"]", file);
+        //laa.append("files["+file.name+"]", document.getElementById("bbb").files[0]);
+        laa.append("to", "iancalligeros@gmail.com");
+        laa.append("toname", "test");
+        laa.append("subject", "Child's Learning Story");
+        laa.append("from", "test@yourdomain.com");
+        laa.append("api_user", "iancalligeros");
+        laa.append("api_key", "tenaciousd");
+        laa.append("content["+file.name+"]", "a.jpg");
+        //laa.append("content["+file.name+"]", "b.jpg");
+        laa.append("html", "<html xmlns='http://www.w3.org/1999/html'> <head> <meta charset='utf-8'> <title>Learning Story</title> </head> <body><div style='width:600px;font-family:helvetica;border-radius: 5px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border: 2px solid #E8EDFF;display:table'> <!-- Title Banner --> <div style='width:600px;height:60px;float:left;color:black;text-align:center;background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #00A3EF 100%);background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #00A3EF 100%);background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #00A3EF 100%);background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #FFFFFF), color-stop(1, #00A3EF));background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #00A3EF 100%);background-image: linear-gradient(to top, #FFFFFF 0%, #00A3EF 100%);'>    <span style='font-size:28px;width:600px;float:left;'>Learning Story</span>     <span style='width:600px;font-style:italic;float:left;'>12/12/12</span> </div><div style='width:600px;height:200px;float:left;margin-top:10px'><img src='cid:a.jpg' width='193' height='200' style='border:none;margin:0px 10px 0px 105px;float:left;'><img src='cid:a.jpg' width='193' height='200' style='border:none;margin:0px 0px 0px 0px;float:left;'></div><div style='width:600px;height:20px;float:left;'><div style='width:193px;margin-left:105px;float:left;text-align:center;font-style:italic;font-size:10px'>asd asdasd</div><div style='width:193px;float:left;text-align:center;font-style:italic;font-size:10px'>zxczxczxc</div></div><!-- Text Container --><div style='width:600px;float:left;margin-top:10px'><div style='width:193px;float:left;margin:0px 10px 0px 0px;'><p style='text-align:center;font-weight:bold'>Evaluation</p><p style='font-size:12px'>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p><p style='text-align:center;font-weight:bold'>Follow-Up Experience</p><p style='font-size:12px'>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p></div><div style='width:193px;float:left;margin:0px 0px 0px 0px;'><p style='text-align:center;font-weight:bold'>Learning Outcomes</p><ul style='font-size:12px'><li style='margin-bottom: 1em;'>Outcome One: Children have a strong sense of identity. Children feel safe, secure and supported - build secure attachments with one and then more familiar educators,  use effective routines to help make predicted transitions smoothly. </br></br></li><li style='margin-bottom: 1em;'>Outcome Two: Children are connected with and contribute to their world. Children respond to diversity with respect - begin to show concern for others,  explore the diversity of culture, heritage, background and tradition and that diversity presents opportunities for choices and new understandings,  become aware of connections, similarities and differences between people. </br></br></li></ul></div></div></div></body></html>");
+
+
+        var oReq = new XMLHttpRequest();
+        oReq.open("POST", "https://sendgrid.com/api/mail.send.json", true);
+        //oReq.setRequestHeader("content-type","multipart/form-data; charset=utf-8;");
+        oReq.onload = function(oEvent) {
+            if (oReq.status == 200) {
+
+            } else {
+
+            }
+        };
+        oReq.send(laa);
+    }
+
+    // Called if something bad happens.
+    //
+    function captureError(error) {
+        var msg = 'An error occurred during capture: ' + error.code;
+        navigator.notification.alert(msg, null, 'Uh oh!');
+    }
+
+    // A button will call this function
+    //
+
+    function selectFromGallery() {
+        navigator.camera.getPicture( captureSuccess, function() { console.log("FAIL"); }, { quality: 50, destinationType: Camera.DestinationType.FILE_URI, sourceType: Camera.PictureSourceType.PHOTOLIBRARY  });
+    }
+</script>
+
+<div data-role="collapsible" data-collapsed = "true" data-theme = "b">
+    <h3>Choose Images</h3>
+    <form enctype="multipart/form-data" method="post" name="fileinfo">
+        <div class="ui-grid-solo">
+            <div class="ui-block-a">
+                <!-- <input id="imageOne" type="file" name="files[a.jpg]"> -->
+                <a href="" onclick="selectFromGallery()" data-role="button" data-inline="true">Select Image</a>
+            </div>
+        </div>
+        <div class="ui-grid-solo">
+            <div class="ui-block-a">
+                <input id="imageTwo" type="file" name="files[b.jpg]">
+            </div>
+        </div>
+        <div class="ui-grid-solo">
+            <div class="ui-block-a">
+                <input id="imageThree" type="file" name="files[c.jpg]">
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+<div data-role="collapsible" data-collapsed = "true" data-theme = "c">
+    <h3>Observations</h3>
+
+    <ul id="ReportNotes" data-role="listview" data-theme="b" style="margin-top:10px">
+    </ul>
+</div>
+
+<div data-role="collapsible" data-collapsed = "true" data-theme = "d">
+    <h3>Learning Outcomes</h3>
+
+
+    <div data-role="collapsible" data-collapsed = "true" data-theme = "d">
+        <h3>Early Years Learning Frameworks Outcomes</h3>
+        <div data-role="collapsible-set">
+            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
+                <h3 style="white-space:normal">Outcome One: Children have a strong sense of identity</h3>
+                <div data-role="collapsible-set">
+                    <ul data-role="listview" data-theme="i">
+                        <li ><a onclick="onSelectOutcome('EYLF','OutcomeOneA')" style="white-space:normal">Children feel safe, secure, and supported</a></li>
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeOneB')" style="white-space:normal">Children develop their emerging autonomy, inter-dependence, resilience and sense of agency</a></li>
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeOneC')" style="white-space:normal">Children develop knowledgeable and confident self identities</a></li>
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeOneD')" style="white-space:normal" >Children learn to interact in relation to others with care, empathy and respect</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
+                <h3>Outcome Two: Children are connected with and contribute to their world</h3>
+                <div data-role="collapsible-set">
+                    <ul data-role="listview" data-theme="i">
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeTwoA')" style="white-space:normal">Children develop a sense of belonging to groups and communities and an understanding of the reciprocal rights and responsibilities necessary for active community participation </a></li>
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeTwoB')" style="white-space:normal">Children respond to diversity with respect</a></li>
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeTwoC')" style="white-space:normal">Children become aware of fairness </a></li>
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeTwoD')" style="white-space:normal">Children become socially responsible and show respect for the environment</a></li>
+                    </ul>
+                </div>
+
+            </div>
+            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
+                <h3>Outcome Three: Children have a strong sense of well being</h3>
+                <div data-role="collapsible-set">
+                    <ul data-role="listview" data-theme="i">
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeThreeA')" style="white-space:normal">Children become strong in their social and emotional wellbeing</a></li>
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeThreeB')" style="white-space:normal">Children take increasing responsibility for their own health and physical wellbeing</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
+                <h3>Outcome Four: Children are confident and involved learners</h3>
+                <div data-role="collapsible-set">
+                    <ul data-role="listview" data-theme="i">
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeFourA')" style="white-space:normal">Children develop dispositions for learning such as curiosity, cooperation, confidence, creativity, commitment, enthusiasm, persistence, imagination and reflexivity </a></li>
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeFourB')" style="white-space:normal">Children develop a range of skills and processes such as problem solving, enquiry, experimentation, hypothesising, researching and investigating</a></li>
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeFourC')" style="white-space:normal">Children transfer and adapt what they have learned from one context to another</a></li>
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeFourD')" style="white-space:normal">Children resource their own learning through connecting with people, place, technologies and natural and processed materials</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
+                <h3>Outcome Five: Children are effective communicators</h3>
+                <div data-role="collapsible-set">
+                    <ul data-role="listview" data-theme="i">
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeFiveA')" style="white-space:normal">Children interact verbally and non-verbally with others for a range of purposes </a></li>
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeFiveB')" style="white-space:normal">Children engage with a range of texts and gain meaning from these texts </a></li>
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeFiveC')" style="white-space:normal">Children express ideas and make meaning using a range of media</a></li>
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeFiveD')" style="white-space:normal">Children begin to understand how symbols and pattern systems work</a></li>
+                        <li><a onclick="onSelectOutcome('EYLF','OutcomeFiveE')" style="white-space:normal">Children use information and communication technologies to access information, investigate ideas and represent their thinking</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div data-role="collapsible" data-collapsed = "true" data-theme = "d">
+        <h3>Queensland Kindergarten Learning Guide Outcomes</h3>
+        <div data-role="collapsible-set">
+            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
+                <h3>Identity - A kindergarten child who has a strong sense of identity</h3>
+                <div data-role="collapsible-set">
+                    <ul data-role="listview" data-theme="i">
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneA')" style="white-space:normal">Is building a sense of security and trust</a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneB')" style="white-space:normal">Acts with increasing independence and perseverance</a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneC')" style="white-space:normal">Is building a confident self-identity</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
+                <h3>Connectedness - A kindergarten child who is connected with and contributes to their world</h3>
+                <div data-role="collapsible-set">
+                    <ul data-role="listview" data-theme="i">
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeTwoA')" style="white-space:normal">Is building positive relationships with others</a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeTwoB')" style="white-space:normal">Shows increasing respect for diversity</a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeTwoC')" style="white-space:normal">Shows increasing respect for environments</a></li>
+                    </ul>
+                </div>
+
+            </div>
+            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
+                <h3>Wellbeing - A kindergarten child who has a strong sense of wellbeing</h3>
+                <div data-role="collapsible-set">
+                    <ul data-role="listview" data-theme="i">
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeThreeA')" style="white-space:normal">Is building a sense of autonomy and wellbeing</a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeThreeB')" style="white-space:normal">Explores ways to show care and concern and interact positively with others</a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeThreeC')" style="white-space:normal">Explores ways to promote own and others’ health and safety</a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeThreeD')" style="white-space:normal">Explores ways to promote physical wellbeing</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
+                <h3>Active Learning - A kindergarten child who is a confident and involved learner</h3>
+                <div data-role="collapsible-set">
+                    <ul data-role="listview" data-theme="i">
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeFourA')" style="white-space:normal">Is building positive dispositions and approaches toward learning</a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeFourB')" style="white-space:normal">Shows increasing confidence and involvement in learning</a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeFourC')" style="white-space:normal">Engages in ways to be imaginative and creative</a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeFourD')" style="white-space:normal">Explores tools, technologies and information and communication technologies (ICTs)</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
+                <h3>Communicating - A kindergarten child who is an effective communicator</h3>
+                <div data-role="collapsible-set">
+                    <ul data-role="listview" data-theme="i">
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeFiveA')" style="white-space:normal">Explores and expands ways to use language","spoken and nonverbal communication</a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeFiveB')" style="white-space:normal">Explores and engages with literacy in personally meaningful ways </a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeFiveC')" style="white-space:normal">Explores and engages with numeracy in personally meaningful ways</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div data-role="collapsible" data-collapsed = "true" data-theme = "d">
+        <h3>ELYF Principles</h3>
+        <div data-role="collapsible-set">
+            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
+                <h3>Identity - A kindergarten child who has a strong sense of identity</h3>
+                <div data-role="collapsible-set">
+                    <ul data-role="listview" data-theme="i">
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneA')" style="white-space:normal">Is building a sense of security and trust</a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneB')" style="white-space:normal">Acts with increasing independence and perseverance</a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneC')" style="white-space:normal">Is building a confident self-identity</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div data-role="collapsible" data-collapsed = "true" data-theme = "d">
+        <h3>ELYF Practices</h3>
+        <div data-role="collapsible-set">
+            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
+                <h3>Identity - A kindergarten child who has a strong sense of identity</h3>
+                <div data-role="collapsible-set">
+                    <ul data-role="listview" data-theme="i">
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneA')" style="white-space:normal">Is building a sense of security and trust</a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneB')" style="white-space:normal">Acts with increasing independence and perseverance</a></li>
+                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneC')" style="white-space:normal">Is building a confident self-identity</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div data-role="collapsible" data-collapsed = "true" data-theme = "e">
+    <h3>Follow Up Experience</h3>
+    <div data-role="fieldcontain">
+        <label for="followuptext"></label>
+        <textarea name="textarea" id="followuptext"></textarea>
+    </div>
+</div>
+
+<div data-role="collapsible" data-collapsed = "true" data-theme = "f">
+    <h3>Evaluation</h3>
+    <div data-role="fieldcontain">
+        <label for="evaluationtext"></label>
+        <textarea name="textarea" id="evaluationtext"></textarea>
+    </div>
+</div>
+
+<div data-role="collapsible" data-collapsed = "true" data-theme = "h">
+    <h3>Style Options</h3>
+    <div data-role="set">
+        <a href="#choosefont" data-role="button" data-rel="dialog" data-transition="pop">Choose Font</a>
+        <a href="#choosefontcolour" data-role="button" data-rel="dialog" data-transition="pop">Choose Font Colour</a>
+        <a href="#choosebackground" data-role="button" data-rel="dialog" data-transition="pop">Choose Background</a>
+    </div>
+</div>
+</div>
+
+
+
+<div class="ui-grid-solo" style="margin-top:10px">
+    <div class="ui-block-a"><input id="eInputReport" type="text" name="" id="name" value="" placeholder="Recipient Email"/></div>
+</div>
+
+
+<div class="ui-grid-solo" style="margin-top:10px">
+    <div class="ui-block-a"><input id="TRinput" type="text" name="" id="name" value="" placeholder="Other Recipient Email"/></div>
+</div>
+
+<div class="ui-grid-a" >
+    <div class="ui-block-a"><a onclick="onSubmitReport()" data-icon="check" href="" data-role="button">Submit</a></div>
+    <div class="ui-block-b"><a  data-icon="delete" href="#ChooseTemplate" data-role="button" data-theme="i">Back</a></div>
+</div><!-- /grid-b -->
+</div><!-- /content -->
+
+
+</div><!-- /page Report Fill -->
+
+<!-- This page is used to fill learning outcomes -->
+<div data-role="page" id="OutcomeSelection">
+
+    <div data-role="header" data-theme="e">
+        <h1 id="outcomeheading" style="overflow:visible">Outcome Observations</h1>
+    </div>
+
+    <div data-role="content">
+
+        <ul id="outcomelist" data-role="listview" data-theme="c">
+        </ul>
+
+        <div class="ui-grid-b" style="margin-top:30px">
+            <div class="ui-block-a"></div>
+            <div class="ui-block-b"><a href="#ReportFill" data-direction="reverse" data-role="button" data-theme="i">Back</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+
+
+</div><!-- /end of Outcome Selection -->
+
+<!-- Start of third page: #Caption -->
+<div data-role="dialog" id="addcaption">
+
+    <div data-role="header" data-theme="c">
+        <h1>Add Caption</h1>
+    </div>
+
+    <div data-role="content">
+
+        <div class="ui-grid-solo">
+            <label for="textarea-a"></label>
+            <textarea name="textarea" id="captiontext"></textarea>
+        </div>
+
+        <div class="ui-grid-a" style="margin-top:30px">
+            <div class="ui-block-a"><a onclick="saveCaption()" data-icon="check" data-rel="back" href="#" data-role="button">Add</a></div>
+            <div class="ui-block-b"><a  data-icon="delete" href="#" data-rel="back" data-role="button">Cancel</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+</div><!-- /page Choose Your Font -->
+
+<div data-role="dialog" id="choosefont">
+
+    <div data-role="header" data-theme="c">
+        <h1>Choose Font</h1>
+    </div>
+
+    <div data-role="content">
+
+        <div class="ui-grid-solo">
+            <ul data-role="listview">
+                <li style="cursor:pointer" onclick="SelectedFont = 'A'; $('.ui-dialog').dialog('close')" data-icon="check" data-rel="back" href="#">
+                    <h3 style="font-family:cursive">Cursive</h3>
+                    <p style="font-family:cursive">Click here to select this font</p>
+                </li>
+                <li style="cursor:pointer" onclick="SelectedFont = 'B'; $('.ui-dialog').dialog('close')" data-icon="check" data-rel="back" href="#">
+                    <h3 style="font-family:fantasy">Fantasy</h3>
+                    <p style="font-family:fantasy">Click here to select this font</p>
+                </li>
+                <li style="cursor:pointer" onclick="SelectedFont = 'C';$('.ui-dialog').dialog('close')" data-icon="check" data-rel="back" href="#">
+                    <h3 style="font-family:helvetica">Helvetica</h3>
+                    <p style="font-family:helvetica">Click here to select this font</p>
+                </li>
+                <li style="cursor:pointer" onclick="SelectedFont = 'D';$('.ui-dialog').dialog('close')" data-icon="check" data-rel="back" href="#">
+                    <h3 style="font-family:palatino">Palatino</h3>
+                    <p style="font-family:palatino">Click here to select this font</p>
+                </li>
+            </ul>
+        </div>
+
+        <div class="ui-grid-solo" style="margin-top:30px">
+            <div class="ui-block-a"><a  data-icon="delete" href="#" data-rel="back" data-role="button">Cancel</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+</div><!-- /page ChooseFont -->
+
+<div data-role="dialog" id="choosefontcolour">
+
+    <div data-role="header" data-theme="c">
+        <h1>Choose Font Colour</h1>
+    </div>
+
+    <div data-role="content">
+
+        <div class="ui-grid-solo">
+            <ul data-role="listview">
+                <li style="cursor:pointer" onclick="SelectedFontColour = 'A'; $('.ui-dialog').dialog('close')" data-icon="check" data-rel="back" href="#">
+                    <h3 style="color:black">Black</h3>
+                    <p>Click here to select this font colour</p>
+                </li>
+                <li style="cursor:pointer" onclick="SelectedFontColour = 'B'; $('.ui-dialog').dialog('close')" data-icon="check" data-rel="back" href="#">
+                    <h3 style="color:black">White</h3>
+                    <p>Click here to select this font colour</p>
+                </li>
+                <li style="cursor:pointer" onclick="SelectedFontColour = 'C';$('.ui-dialog').dialog('close')" data-icon="check" data-rel="back" href="#">
+                    <h3 style="color:blue">Blue</h3>
+                    <p>Click here to select this font colour</p>
+                </li>
+            </ul>
+        </div>
+
+        <div class="ui-grid-solo" style="margin-top:30px">
+            <div class="ui-block-a"><a  data-icon="delete" href="#" data-rel="back" data-role="button">Cancel</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+</div><!-- /page ChooseFont -->
+
+<!-- /page Choose Your Background -->
+
+<div data-role="dialog" id="choosebackground">
+
+    <div data-role="header" data-theme="c">
+        <h1>Choose Background</h1>
+    </div>
+
+    <div data-role="content">
+
+        <div class="ui-grid-solo">
+            <ul data-role="listview">
+                <li onclick="SelectedBackground = 'A';$('.ui-dialog').dialog('close')">
+                    <div style="width: 50px; height:60px; display:inline-block; float:left; margin-right:20px; background-color:lightgreen"></div>
+                    <h3 style="display:inline-block; float:left;">Light Green</h3>
+                    <p>Click to Choose</p>
+                </li>
+                <li onclick="SelectedBackground = 'B';$('.ui-dialog').dialog('close')">
+                    <div style="width: 50px; height:60px;display:inline-block; float:left; margin-right:20px; background-color:lightslategray"></div>
+                    <h3 style="display:inline-block; float:left;">Slate Gray</h3>
+                    <p>Click to Choose</p>
+                </li>
+                <li onclick="SelectedBackground = 'C';$('.ui-dialog').dialog('close')">
+                    <div style="width: 50px; height:60px;display:inline-block; float:left; margin-right:20px; background-color:teal"></div>
+                    <h3 style="display:inline-block; float:left;">Teal</h3>
+                    <p>Click to Choose</p>
+                </li>
+                <li onclick="SelectedBackground = 'D';$('.ui-dialog').dialog('close')">
+                    <div style="width: 50px; height:60px;display:inline-block; float:left; margin-right:20px; background-color:lightblue"></div>
+                    <h3 style="display:inline-block; float:left;">Light Blue</h3>
+                    <p>Click to Choose</p>
+                </li>
+                <li onclick="SelectedBackground = 'E';$('.ui-dialog').dialog('close')">
+                    <div style="width: 50px; height:60px;display:inline-block; float:left; margin-right:20px; background-color:white"></div>
+                    <h3 style="display:inline-block; float:left;">No Background</h3>
+                    <p>Click to Choose</p>
+                </li>
+            </ul>
+        </div>
+
+        <div class="ui-grid-solo" style="margin-top:30px">
+            <div class="ui-block-a"><a  data-icon="delete" href="#" data-rel="back" data-role="button">Cancel</a></div>
+        </div><!-- /grid-b -->
+
+    </div><!-- /content -->
+</div><!-- /page ChooseFont -->
+
+<!-- End of Report Generation Pages -->
+
+<!-- End of Report Generation Pages -->
+
+
+
+<script>
+
+</script>
+
+<script src="js/Application.js"></script>
+<script src="js/SyncDB.js"></script>
+<script src="js/data.js"></script>
+<script src="js/GenerateEmail.js"></script>
+
+<script>
+    $('#OutcomeSelection').bind('pageinit', function() {
+    });
+
+    $('#ReportFill').bind('pageinit', function() {
+        $("#eInputReport").val(CurrentStudent.Parent);
+        $("#TRinput").val(Globals.teacher);
+    });
+
+    $('#ReportFill').bind('pageshow', function() {
+        $("#eInputReport").val(CurrentStudent.Parent);
+        $("#TRinput").val(Globals.teacher);
+    });
+
+    $('#four').bind('pageinit', function() {
+        $("#UEinput").val(CurrentStudent.Parent);
+    });
+
+    $('#teachersemail').bind('pageinit', function() {
+        $("#Tinput").val(Globals.teacher);
+    });
+
+    $('#teachersemail').bind('pageshow', function() {
+        $("#Tinput").val(Globals.teacher);
+    });
+
+
+    $('#four').bind('pageshow', function() {
+        $("#UEinput").val(CurrentStudent.Parent);
+    });
+
+</script>
+
+
+</body>
+</html>
