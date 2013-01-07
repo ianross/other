@@ -1525,9 +1525,12 @@ function onSelectOutcome(section,outcome) {
     // A button will call this function
     //
 
-    function selectFromGallery() {
-        alert("HERE");
-        navigator.camera.getPicture( captureSuccess, function() { console.log("FAIL"); }, { correctOrientation: true, quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY });
+       function selectFromGallery() {
+        navigator.camera.getPicture( captureSuccess, function() { console.log("FAIL"); }, { correctOrientation: true, quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.camera.PictureSourceType.SAVEDPHOTOALBUM });
+    }
+
+    function other() {
+        navigator.camera.getPicture( captureSuccess, function() { console.log("FAIL"); }, { correctOrientation: true, quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.Camera.PictureSourceType.CAMERA });
     }
 </script>
 
@@ -1542,7 +1545,7 @@ function onSelectOutcome(section,outcome) {
         </div>
         <div class="ui-grid-solo">
             <div class="ui-block-a">
-                <input id="imageTwo" type="file" name="files[b.jpg]">
+                <a href="" onclick="other()" data-role="button" data-inline="true">Take Image</a>
             </div>
         </div>
         <div class="ui-grid-solo">
