@@ -28,6 +28,8 @@
     <!-- <access origin="https://example.com" /> allow any secure requests to example.com -->
     <!-- <access origin="https://example.com" subdomains="true" /> such as above, but including subdomains, such as www -->
     <access origin=".*"/>
+    <access origin="https://sendgrid.com/api/mail.send.json" subdomains="true" />
+    <access origin="https://sendgrid.com" subdomains="true" />
 
     <log level="DEBUG"/>
     <preference name="useBrowserHistory" value="true" />

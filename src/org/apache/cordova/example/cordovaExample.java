@@ -22,14 +22,23 @@ package org.apache.cordova.example;
 import android.app.Activity;
 import android.os.Bundle;
 import org.apache.cordova.*;
+import org.apache.cordova.api.CordovaInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.webkit.ValueCallback;
+import org.apache.cordova.CordovaChromeClient;
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.DroidGap;
 
 public class cordovaExample extends DroidGap
 {
+	
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         super.loadUrl("file:///android_asset/www/index.html");
+        
     }
 }
 
