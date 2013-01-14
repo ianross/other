@@ -191,8 +191,7 @@ function TryUploadData() {
         url: "http://ec2-23-22-186-167.compute-1.amazonaws.com/school/content",
         //url: "http://localhost:10080/school/content",
         type: "POST",
-        //data: {uuid: SendData.uuid, to:SendData.email, cc:SendData.cc, body: emailString},
-        data: JSON.stringify({uuid: SendData.uuid, to:SendData.email, body: emailString}),
+        data: JSON.stringify({uuid: SendData.uuid, cc:SendData.cc, to:SendData.email, body: emailString}),
 
         cache: false,
         success: function(response, status, obj){

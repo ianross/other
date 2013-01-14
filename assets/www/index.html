@@ -1710,7 +1710,7 @@ function PracticesCheck(e) {
 </div><!-- /page Report Fill -->
 
 <!-- This page is used to fill learning outcomes -->
-<div data-role="page" id="OutcomeSelection">
+<div data-role="dialog" id="OutcomeSelection">
 
     <div data-role="header" data-theme="e">
         <h1 id="outcomeheading" style="overflow:visible">Outcome Observations</h1>
@@ -1723,7 +1723,7 @@ function PracticesCheck(e) {
 
         <div class="ui-grid-b" style="margin-top:30px">
             <div class="ui-block-a"></div>
-            <div class="ui-block-b"><a href="#ReportFill" data-direction="reverse" data-role="button" data-theme="i">Back</a></div>
+            <div class="ui-block-b"><a href="#" data-rel="back" data-role="button" data-theme="i">Back</a></div>
         </div><!-- /grid-b -->
 
     </div><!-- /content -->
@@ -1834,27 +1834,27 @@ function PracticesCheck(e) {
         <div class="ui-grid-solo">
             <ul data-role="listview">
                 <li onclick="SelectedBackground = 'A';$('.ui-dialog').dialog('close')">
-                    <div style="width: 50px; height:60px; display:inline-block; float:left; margin-right:20px; background-color:lightgreen"></div>
+                    <div style="width: 50px; height:60px;float:left; margin-right:20px; background-color:lightgreen"></div>
                     <h3 style="display:inline-block; float:left;">Light Green</h3>
                     <p>Click to Choose</p>
                 </li>
                 <li onclick="SelectedBackground = 'B';$('.ui-dialog').dialog('close')">
-                    <div style="width: 50px; height:60px;display:inline-block; float:left; margin-right:20px; background-color:lightslategray"></div>
+                    <div style="width: 50px; height:60px; float:left; margin-right:20px; background-color:lightslategray"></div>
                     <h3 style="display:inline-block; float:left;">Slate Gray</h3>
                     <p>Click to Choose</p>
                 </li>
                 <li onclick="SelectedBackground = 'C';$('.ui-dialog').dialog('close')">
-                    <div style="width: 50px; height:60px;display:inline-block; float:left; margin-right:20px; background-color:teal"></div>
+                    <div style="width: 50px; height:60px; float:left; margin-right:20px; background-color:teal"></div>
                     <h3 style="display:inline-block; float:left;">Teal</h3>
                     <p>Click to Choose</p>
                 </li>
                 <li onclick="SelectedBackground = 'D';$('.ui-dialog').dialog('close')">
-                    <div style="width: 50px; height:60px;display:inline-block; float:left; margin-right:20px; background-color:lightblue"></div>
+                    <div style="width: 50px; height:60px; float:left; margin-right:20px; background-color:lightblue"></div>
                     <h3 style="display:inline-block; float:left;">Light Blue</h3>
                     <p>Click to Choose</p>
                 </li>
                 <li onclick="SelectedBackground = 'E';$('.ui-dialog').dialog('close')">
-                    <div style="width: 50px; height:60px;display:inline-block; float:left; margin-right:20px; background-color:white"></div>
+                    <div style="width: 50px; height:60px;float:left; margin-right:20px; background-color:white"></div>
                     <h3 style="display:inline-block; float:left;">No Background</h3>
                     <p>Click to Choose</p>
                 </li>
