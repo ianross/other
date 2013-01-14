@@ -35,12 +35,15 @@ var SelectedBackground = "E";
 var SelectedFont = "A";
 var SelectedFontColour = "A";
 
+var SelectedPrinciples = [];
+var SelectedPractices = [];
+
 var CurrentCaptionElement = null;
 
-var TemplateOne = {images : 2};
-var TemplateTwo = {images : 2};
-var TemplateThree = {images : 1};
-var TemplateFour = {images : 0};
+var TemplateOne = {images : 3};
+var TemplateTwo = {images : 3};
+var TemplateThree = {images : 3};
+var TemplateFour = {images : 3};
 
 var ReportType = "";
 var ReportOutcomes = [];

@@ -473,8 +473,7 @@ function StartCamera() {
         navigator.camera.getPicture(onSuccess, onFail, { quality: 50, correctOrientation: true, destinationType: Camera.DestinationType.FILE_URI });
     }
     else {
-        //location.href = "#captureimageALT";
-        onSuccess("img/thumb.jpg")
+        onSuccess("img/thumb.jpg");
     }
 }
 
@@ -534,11 +533,14 @@ function onTemplateClick(template) {
     location.href = "#ReportFill"
 }
 
-function saveCaption () {
-    var text = $(document.getElementById('captiontext')).val();
-    CurrentCaptionElement.setAttribute("caption",text);
-    $(document.getElementById('captiontext')).val('');
-    //alert("Caption Saved");
+function saveCaption (none) {
+    if(none) { ReportCheckBoxesCaption.push("");}
+    else {
+        var text = $(document.getElementById('captiontext')).val();
+        CurrentCaptionElement.setAttribute("caption",text);
+        ReportCheckBoxesCaption.push(text);
+        $(document.getElementById('captiontext')).val('');
+    }
 }
 function setCaptionElement (el) {
     CurrentCaptionElement = el;
@@ -562,62 +564,50 @@ function GenerateReportImageGrid() {
                 var spanC = $('<span class="ui-btn-inner ui-btn-corner-all"> </span>');
                 var spanChildB = $(' <span class="ui-icon ui-icon-checkbox-off ui-icon-shadow" style="margin-left:5px">&nbsp;</span>');
 
-
-                var btn = $('<a style="width:90px;height:25px" onclick="setCaptionElement(this)" data-icon="" href="#addcaption" data-rel="dialog" data-transition="pop" data-role="button" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="c" class="ui-btn ui-shadow ui-btn-corner-all ui-btn-icon-left ui-btn-up-c">');
-                var btnInner = $('<span style="padding: 3px 0px 0px 0px; width:90px; font-size:14px" class="ui-btn-inner ui-btn-corner-all"><span class="ui-btn-text">Add Caption</span></span>');
-
-                $(btn).append(btnInner);
-
                 $(labelContainer).append(spanC);
                 $(spanC).append(spanChildB);
 
                 //ReportCheckBoxesImages.push($(input).children()[0]);
                 //$($(input).children()[0]).change(onChangeImageChange);
 
+                if(i%3 == 0 && i != 0) {
+                    incGrid++;
+                }
+
                 if(incGrid == 0) {
 
                     if(i == 0) {
-                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-
-
                     }
 
                     if(i == 1) {
-                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //  $(li).append(divContainer);
-                        //  $(cGrid).append(li);
                     }
                     if(i == 2) {
-                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //  $(li).append(divContainer);
-                        //  $(cGrid).append(li);
                     }
                 }
 
                 if(incGrid == 1) {
 
                     if(i == 3) {
-                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //  $(li).append(divContainer);
-                        //  $(cGrid).append(li);
 
                     }
 
                     if(i == 4) {
-                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+
+                        var li = $("<div id='ListImage' class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //   $(li).append(divContainer);
-                        //  $(cGrid).append(li);
                     }
                     if(i == 5) {
-                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+
+                        var li = $("<div id='ListImage' class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //   $(li).append(divContainer);
-                        //   $(cGrid).append(li);
                     }
 
                 }
@@ -625,24 +615,18 @@ function GenerateReportImageGrid() {
                 if(incGrid == 2) {
 
                     if(i == 6) {
-                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //    $(li).append(divContainer);
-                        //    $(cGrid).append(li);
 
                     }
 
                     if(i == 7) {
-                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //   $(li).append(divContainer);
-                        //    $(cGrid).append(li);
                     }
                     if(i == 8) {
-                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //   $(li).append(divContainer);
-                        //   $(cGrid).append(li);
                     }
 
                 }
@@ -650,84 +634,63 @@ function GenerateReportImageGrid() {
                 if(incGrid == 3) {
 
                     if(i == 9) {
-                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //   $(li).append(divContainer);
-                        //  $(cGrid).append(li);
-
                     }
 
                     if(i == 10) {
-                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //  $(li).append(divContainer);
-                        //  $(cGrid).append(li);
                     }
                     if(i == 11) {
-                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //  $(li).append(divContainer);
-                        //  $(cGrid).append(li);
                     }
 
                 }
                 if(incGrid == 4) {
 
                     if(i == 12) {
-                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //  $(li).append(divContainer);
-                        //  $(cGrid).append(li);
-
                     }
 
                     if(i == 13) {
-                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //    $(li).append(divContainer);
-                        //   $(cGrid).append(li);
                     }
                     if(i == 14) {
-                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //  $(li).append(divContainer);
-                        //   $(cGrid).append(li);
                     }
 
                 }
                 if(incGrid == 5) {
 
                     if(i == 15) {
-                        var li = $("<div class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-a'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //  $(li).append(divContainer);
-                        // $(cGrid).append(li);
 
                     }
 
                     if(i == 16) {
-                        var li = $("<div class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-b'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //   $(li).append(divContainer);
-                        //   $(cGrid).append(li);
                     }
                     if(i == 17) {
-                        var li = $("<div class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
+                        var li = $("<div id='ListImage' class='ui-block-c'><div class='ui-bar ui-bar-b' style='height:100px; width:65px;'><img width='65' height='100' src="+ CurrentStudent.images[i]+" /></div> </div>");
                         li[0].setAttribute('number',i);
-                        //    $(li).append(divContainer);
-                        //    $(cGrid).append(li);
                     }
                 }
-                if(i%3 == 0 && i != 0) {
-                    incGrid++;
-                }
-                $(li).append(btn);
+
                 $(li).append(divContainer);
                 $(cGrid).append(li);
 
                 li[0].setAttribute("checked","false");
-                btn[0].setAttribute("caption","");
-                $(li).click(this.create({li: li[0],x:spanChildB, y:labelContainer, image:CurrentStudent.images[i], caption:btn[0]},onImagesCheckboxClick));
+                li[0].setAttribute("link", CurrentStudent.images[i]);
+                li[0].setAttribute("caption","");
+                $(li).click(this.create({li: li[0],x:spanChildB, y:labelContainer, image:CurrentStudent.images[i]},onImagesCheckboxClick));
+                $(li[0]).bind('click', function(event) { event.stopPropagation(); setCaptionElement(this); });
 
             }
         }
@@ -748,9 +711,23 @@ function onImagesCheckboxClick(e) {
         $(this.y).addClass('ui-checkbox-off');
         this.li.setAttribute("checked","false");
 
-        var index = ReportCheckBoxesImages.indexOf(this.image);
-        ReportCheckBoxesImages.splice(index, 1);
-        ReportCheckBoxesCaption.splice(index, 1);
+        //var index = ReportCheckBoxesImages.indexOf(this.image);
+        //ReportCheckBoxesImages.splice(index, 1);
+        //ReportCheckBoxesCaption.splice(index, 1);
+
+
+        //Rebuild Captions array...
+        var listImages = $("div[id^='ListImage']");
+
+        ReportCheckBoxesImages = [];
+        ReportCheckBoxesCaption = [];
+
+        for(var i = 0; i<listImages.length; i++) {
+            if(listImages[i].getAttribute("checked") == "true") {
+                ReportCheckBoxesImages.push(listImages[i].getAttribute("link"));
+                ReportCheckBoxesCaption.push(listImages[i].getAttribute("caption"));
+            }
+        }
     }
     else {
         if(ReportCheckBoxesImages.length < Template.images) {
@@ -761,7 +738,9 @@ function onImagesCheckboxClick(e) {
             this.li.setAttribute("checked","true");
 
             ReportCheckBoxesImages.push(this.image);
-            ReportCheckBoxesCaption.push(this.caption);
+            location.href = "#addcaption";
+
+
         }
     }
 }
@@ -842,6 +821,7 @@ function onSubmitReport() {
 
     //Get email address
     var email = document.getElementById("eInputReport").value;
+    var other = document.getElementById("TRInput").value;
 
     //Get follow up & evaluation if any
     var followup = $("#followuptext").val();
@@ -855,14 +835,17 @@ function onSubmitReport() {
     SendData.captions = captions;
     SendData.notes = NOTES;
     SendData.email = email;
+    SendData.cc = other;
     SendData.followupexperience = followup;
     SendData.evaluation = evaluation;
     SendData.type = ReportType;
     SendData.imageData = images.slice(0);
-    SendData.captionData = captions.slice(0);
+    SendData.captionData = ReportCheckBoxesCaption.slice(0);
     SendData.Background = SelectedBackground;
     SendData.Font = SelectedFont;
     SendData.FontColour = SelectedFontColour;
+    SendData.principles = SelectedPrinciples;
+    SendData.practices = SelectedPractices;
 
     SendData.uuid = "LOLOLOL";//device.uuid;
     SendData.template = ReportTemplate;
@@ -989,6 +972,30 @@ function onSelectOutcome(section,outcome) {
     }
 }
 
+function PrinciplesCheck(e) {
+
+    var checkboxText = $(e.target).nextAll().first().children().children()[0];
+    checkboxText = $(checkboxText).text();
+
+    if(e.target.checked) {
+        SelectedPrinciples.push(checkboxText);
+    }
+    else {
+        SelectedPrinciples.splice( $.inArray(checkboxText, SelectedPrinciples), 1 );
+    }
+}
+function PracticesCheck(e) {
+    var checkboxText = $(e.target).nextAll().first().children().children()[0];
+    checkboxText = $(checkboxText).text();
+
+    if(e.target.checked) {
+        SelectedPractices.push(checkboxText);
+    }
+    else {
+        SelectedPractices.splice( $.inArray(checkboxText, SelectedPractices), 1 );
+    }
+}
+
 </script>
 
 <script src="js/EditMethods.js"></script>
@@ -1020,7 +1027,7 @@ function onSelectOutcome(section,outcome) {
         <div data-role="collapsible" data-collapsed = "true" data-theme = "d">
             <h3>Capture Data</h3>
 
-            <!--<a id="Image" href="#captureimage" data-role="button">Capture Picture</a>-->
+            <a id="Image" href="#captureimage" data-role="button">Capture Picture</a>
             <a id="Notes" href="#capturenotes" data-role="button">Write Observations</a>
 
         </div>
@@ -1116,13 +1123,13 @@ function onSelectOutcome(section,outcome) {
             </fieldset>
 
         </div>
-        <!--
+
         <div data-role="collapsible" data-collapsed = "true" data-theme = "b">
             <h3>View Child Images</h3>
             <div id="StudentImages" class="ui-grid-b">
             </div>
         </div>
-        -->
+
 
 
         <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
@@ -1495,7 +1502,7 @@ function onSelectOutcome(section,outcome) {
         laa.append("api_key", "tenaciousd");
         laa.append("content["+fuck.name+"]", "a.jpg");
         laa.append("content[Penis.jpg]", "b.jpg");
-        laa.append("html", "<html xmlns='http://www.w3.org/1999/html'> <head> <meta charset='utf-8'> <title>Learning Story</title> </head> <body><div style='width:600px;font-family:helvetica;border-radius: 5px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border: 2px solid #E8EDFF;display:table'> <!-- Title Banner --> <div style='width:600px;height:60px;float:left;color:black;text-align:center;background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #00A3EF 100%);background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #00A3EF 100%);background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #00A3EF 100%);background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #FFFFFF), color-stop(1, #00A3EF));background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #00A3EF 100%);background-image: linear-gradient(to top, #FFFFFF 0%, #00A3EF 100%);'>    <span style='font-size:28px;width:600px;float:left;'>Learning Story</span>     <span style='width:600px;font-style:italic;float:left;'>12/12/12</span> </div><div style='width:600px;height:200px;float:left;margin-top:10px'><img src='cid:a.jpg' width='193' height='200' style='border:none;margin:0px 10px 0px 105px;float:left;'><img src='cid:b.jpg' width='193' height='200' style='border:none;margin:0px 0px 0px 0px;float:left;'></div><div style='width:600px;height:20px;float:left;'><div style='width:193px;margin-left:105px;float:left;text-align:center;font-style:italic;font-size:10px'>asd asdasd</div><div style='width:193px;float:left;text-align:center;font-style:italic;font-size:10px'>zxczxczxc</div></div><!-- Text Container --><div style='width:600px;float:left;margin-top:10px'><div style='width:193px;float:left;margin:0px 10px 0px 0px;'><p style='text-align:center;font-weight:bold'>Evaluation</p><p style='font-size:12px'>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p><p style='text-align:center;font-weight:bold'>Follow-Up Experience</p><p style='font-size:12px'>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p></div><div style='width:193px;float:left;margin:0px 0px 0px 0px;'><p style='text-align:center;font-weight:bold'>Learning Outcomes</p><ul style='font-size:12px'><li style='margin-bottom: 1em;'>Outcome One: Children have a strong sense of identity. Children feel safe, secure and supported - build secure attachments with one and then more familiar educators,  use effective routines to help make predicted transitions smoothly. </br></br></li><li style='margin-bottom: 1em;'>Outcome Two: Children are connected with and contribute to their world. Children respond to diversity with respect - begin to show concern for others,  explore the diversity of culture, heritage, background and tradition and that diversity presents opportunities for choices and new understandings,  become aware of connections, similarities and differences between people. </br></br></li></ul></div></div></div></body></html>");
+        laa.append("html", "<html xmlns='http://www.w3.org/1999/html'> <head> <meta charset='utf-8'> <title>Learning Story</title> </head> <body><div style='width:600px;font-family:helvetica;border-radius: 5px;-moz-border-radius: 5px;-webkit-border-radius: 5px;border: 2px solid #E8EDFF;display:table'> <!-- Title Banner --> <div style='width:600px;height:60px;float:left;color:black;text-align:center;background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #00A3EF 100%);background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #00A3EF 100%);background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #00A3EF 100%);background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #FFFFFF), color-stop(1, #00A3EF));background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #00A3EF 100%);background-image: linear-gradient(to top, #FFFFFF 0%, #00A3EF 100%);'>    <span style='font-size:28px;width:600px;float:left;'>Learning Story</span>     <span style='width:600px;font-style:italic;float:left;'>12/12/12</span> </div><div style='width:600px;height:200px;float:left;margin-top:10px'><img src='cid:a.jpg' width='193' height='200' style='border:none;margin:0px 10px 0px 105px;float:left;'><img src='cid:b.jpg' width='193' height='200' style='border:none;margin:0px 0px 0px 0px;float:left;'></div><div style='width:600px;height:20px;float:left;'><div style='width:193px;margin-left:105px;float:left;text-align:center;font-style:italic;font-size:10px'></div><div style='width:193px;float:left;text-align:center;font-style:italic;font-size:10px'>zxczxczxc</div></div><!-- Text Container --><div style='width:600px;float:left;margin-top:10px'><div style='width:193px;float:left;margin:0px 10px 0px 0px;'><p style='text-align:center;font-weight:bold'>Evaluation</p><p style='font-size:12px'>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p><p style='text-align:center;font-weight:bold'>Follow-Up Experience</p><p style='font-size:12px'>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p></div><div style='width:193px;float:left;margin:0px 0px 0px 0px;'><p style='text-align:center;font-weight:bold'>Learning Outcomes</p><ul style='font-size:12px'><li style='margin-bottom: 1em;'>Outcome One: Children have a strong sense of identity. Children feel safe, secure and supported - build secure attachments with one and then more familiar educators,  use effective routines to help make predicted transitions smoothly. </br></br></li><li style='margin-bottom: 1em;'>Outcome Two: Children are connected with and contribute to their world. Children respond to diversity with respect - begin to show concern for others,  explore the diversity of culture, heritage, background and tradition and that diversity presents opportunities for choices and new understandings,  become aware of connections, similarities and differences between people. </br></br></li></ul></div></div></div></body></html>");
 
         var oReq = new XMLHttpRequest();
         oReq.open("POST", "https://sendgrid.com/api/mail.send.json", true);
@@ -1527,31 +1534,16 @@ function onSelectOutcome(section,outcome) {
     function other() {
         navigator.camera.getPicture( captureSuccess, function() { console.log("FAIL"); }, { correctOrientation: true, quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.Camera.PictureSourceType.CAMERA });
     }
+
+
+
 </script>
 
 <div data-role="collapsible" data-collapsed = "true" data-theme = "b">
     <h3>Choose Images</h3>
-    <form enctype="multipart/form-data" method="post" name="fileinfo">
-        <div class="ui-grid-solo">
-            <div class="ui-block-a">
-                <!-- <input id="imageOne" type="file" name="files[a.jpg]"> -->
-                <a href="" onclick="selectFromGallery()" data-role="button" data-inline="true">Select Image</a>
-            </div>
-        </div>
-        <div class="ui-grid-solo">
-            <div class="ui-block-a">
-                <a href="" onclick="other()" data-role="button" data-inline="true">Take Image</a>
-            </div>
-        </div>
-        <div class="ui-grid-solo">
-            <div class="ui-block-a">
-                <input id="imageThree" type="file" name="files[c.jpg]">
-            </div>
-        </div>
-    </form>
+    <div id="ReportImages" class="ui-grid-b">
+    </div><!-- /grid-b -->
 </div>
-
-
 
 <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
     <h3>Observations</h3>
@@ -1625,92 +1617,51 @@ function onSelectOutcome(section,outcome) {
         </div>
     </div>
     <div data-role="collapsible" data-collapsed = "true" data-theme = "d">
-        <h3>Queensland Kindergarten Learning Guide Outcomes</h3>
-        <div data-role="collapsible-set">
-            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
-                <h3>Identity - A kindergarten child who has a strong sense of identity</h3>
-                <div data-role="collapsible-set">
-                    <ul data-role="listview" data-theme="i">
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneA')" style="white-space:normal">Is building a sense of security and trust</a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneB')" style="white-space:normal">Acts with increasing independence and perseverance</a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneC')" style="white-space:normal">Is building a confident self-identity</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
-                <h3>Connectedness - A kindergarten child who is connected with and contributes to their world</h3>
-                <div data-role="collapsible-set">
-                    <ul data-role="listview" data-theme="i">
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeTwoA')" style="white-space:normal">Is building positive relationships with others</a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeTwoB')" style="white-space:normal">Shows increasing respect for diversity</a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeTwoC')" style="white-space:normal">Shows increasing respect for environments</a></li>
-                    </ul>
-                </div>
-
-            </div>
-            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
-                <h3>Wellbeing - A kindergarten child who has a strong sense of wellbeing</h3>
-                <div data-role="collapsible-set">
-                    <ul data-role="listview" data-theme="i">
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeThreeA')" style="white-space:normal">Is building a sense of autonomy and wellbeing</a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeThreeB')" style="white-space:normal">Explores ways to show care and concern and interact positively with others</a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeThreeC')" style="white-space:normal">Explores ways to promote own and others’ health and safety</a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeThreeD')" style="white-space:normal">Explores ways to promote physical wellbeing</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
-                <h3>Active Learning - A kindergarten child who is a confident and involved learner</h3>
-                <div data-role="collapsible-set">
-                    <ul data-role="listview" data-theme="i">
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeFourA')" style="white-space:normal">Is building positive dispositions and approaches toward learning</a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeFourB')" style="white-space:normal">Shows increasing confidence and involvement in learning</a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeFourC')" style="white-space:normal">Engages in ways to be imaginative and creative</a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeFourD')" style="white-space:normal">Explores tools, technologies and information and communication technologies (ICTs)</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
-                <h3>Communicating - A kindergarten child who is an effective communicator</h3>
-                <div data-role="collapsible-set">
-                    <ul data-role="listview" data-theme="i">
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeFiveA')" style="white-space:normal">Explores and expands ways to use language","spoken and nonverbal communication</a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeFiveB')" style="white-space:normal">Explores and engages with literacy in personally meaningful ways </a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeFiveC')" style="white-space:normal">Explores and engages with numeracy in personally meaningful ways</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div data-role="collapsible" data-collapsed = "true" data-theme = "d">
         <h3>ELYF Principles</h3>
         <div data-role="collapsible-set">
-            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
-                <h3>Identity - A kindergarten child who has a strong sense of identity</h3>
-                <div data-role="collapsible-set">
-                    <ul data-role="listview" data-theme="i">
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneA')" style="white-space:normal">Is building a sense of security and trust</a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneB')" style="white-space:normal">Acts with increasing independence and perseverance</a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneC')" style="white-space:normal">Is building a confident self-identity</a></li>
-                    </ul>
-                </div>
-            </div>
+                <input type="checkbox" name="checkbox-1" id="checkbox-1" class="custom" onclick="PrinciplesCheck(event)" />
+                <label for="checkbox-1">Secure, respectful and reciprocal relationships</label>
+
+                <input type="checkbox" name="checkbox-2" id="checkbox-2" class="custom" onclick="PrinciplesCheck(event)" />
+                <label for="checkbox-2">Partnerships</label>
+
+                <input type="checkbox" name="checkbox-3" id="checkbox-3" class="custom" onclick="PrinciplesCheck(event)" />
+                <label for="checkbox-3">High expectations and equity</label>
+
+                <input type="checkbox" name="checkbox-4" id="checkbox-4" class="custom" onclick="PrinciplesCheck(event)" />
+                <label for="checkbox-4">Respect for diversity</label>
+
+                <input type="checkbox" name="checkbox-5" id="checkbox-5" class="custom" onclick="PrinciplesCheck(event)" />
+                <label for="checkbox-5">Ongoing learning and reflective practice</label>
+
         </div>
     </div>
     <div data-role="collapsible" data-collapsed = "true" data-theme = "d">
         <h3>ELYF Practices</h3>
         <div data-role="collapsible-set">
-            <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
-                <h3>Identity - A kindergarten child who has a strong sense of identity</h3>
-                <div data-role="collapsible-set">
-                    <ul data-role="listview" data-theme="i">
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneA')" style="white-space:normal">Is building a sense of security and trust</a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneB')" style="white-space:normal">Acts with increasing independence and perseverance</a></li>
-                        <li><a onclick="onSelectOutcome('QKLG','OutcomeOneC')" style="white-space:normal">Is building a confident self-identity</a></li>
-                    </ul>
-                </div>
-            </div>
+                    <input type="checkbox" name="checkbox-a" id="checkbox-a" class="custom" onclick="PracticesCheck(event)" />
+                    <label for="checkbox-a">Adopting holistic approaches</label>
+
+                    <input type="checkbox" name="checkbox-b" id="checkbox-b" class="custom" onclick="PracticesCheck(event)" />
+                    <label for="checkbox-b">Responsiveness to children</label>
+
+                    <input type="checkbox" name="checkbox-c" id="checkbox-c" class="custom" onclick="PracticesCheck(event)" />
+                    <label for="checkbox-c"> Learning through play</label>
+
+                    <input type="checkbox" name="checkbox-d" id="checkbox-d" class="custom" onclick="PracticesCheck(event)" />
+                    <label for="checkbox-d">Intentional teaching</label>
+
+                    <input type="checkbox" name="checkbox-e" id="checkbox-e" class="custom" onclick="PracticesCheck(event)" />
+                    <label for="checkbox-e">Learning environments</label>
+
+                    <input type="checkbox" name="checkbox-f" id="checkbox-f" class="custom" onclick="PracticesCheck(event)" />
+                    <label for="checkbox-f">Cultural competence</label>
+
+                    <input type="checkbox" name="checkbox-g" id="checkbox-g" class="custom" onclick="PracticesCheck(event)" />
+                    <label for="checkbox-g">Continuity of learning and transitions</label>
+
+                    <input type="checkbox" name="checkbox-h" id="checkbox-h" class="custom" onclick="PracticesCheck(event)" />
+                    <label for="checkbox-h">Assessment for learning</label>
         </div>
     </div>
 </div>
@@ -1799,7 +1750,7 @@ function onSelectOutcome(section,outcome) {
 
         <div class="ui-grid-a" style="margin-top:30px">
             <div class="ui-block-a"><a onclick="saveCaption()" data-icon="check" data-rel="back" href="#" data-role="button">Add</a></div>
-            <div class="ui-block-b"><a  data-icon="delete" href="#" data-rel="back" data-role="button">Cancel</a></div>
+            <div class="ui-block-b"><a onclick="saveCaption('none')"  data-icon="delete" href="#" data-rel="back" data-role="button">Cancel</a></div>
         </div><!-- /grid-b -->
 
     </div><!-- /content -->

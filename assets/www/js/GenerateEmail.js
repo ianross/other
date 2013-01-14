@@ -1,4 +1,4 @@
-function Email(title,date,images,captions,notes,followupexperience,evaluation,type,background,font,template, outcomes, colour) {
+function Email(title,date,images,captions,notes,followupexperience,evaluation,type,background,font,template, outcomes, colour, principles, practices) {
 
     this.title = title;
     this.date = date;
@@ -38,6 +38,23 @@ function Email(title,date,images,captions,notes,followupexperience,evaluation,ty
     //Format Notes
     for(var i=0; i<notes.length;i++) {
         this.fnotes+= '<li style="margin-bottom: 1em;">' + notes[i] + '</li>';
+    }
+
+    //Format practices & principles
+    this.practices = [];
+    this.principles = [];
+    this.blurb = null;
+
+    for(var i=0; i<principles.length;i++) {
+        this.principles+= '<li style="margin-bottom: 1em;">' + principles[i] + '</li>';
+    }
+
+    for(var i=0; i<practices.length;i++) {
+        this.practices+= '<li style="margin-bottom: 1em;">' + practices[i] + '</li>';
+    }
+
+    if(this.practices.length > 0 || this.practices.length > 0) {
+        this.blurb = "Educators have carefully considered the following pedagogical principles and practices to promote learning and assist the child to make progress in relation to the Learning Outcomes.";
     }
 
     //Format Outcomes
@@ -216,6 +233,29 @@ Email.prototype.GenerateEmail = function(template) {
     }
 
     this.EmailString+='</div>';
+
+    if(this.principles.length > 0 || this.practices.length > 0) {
+
+        this.EmailString+= '<!-- Principles & Practices --><div style="width:600px;float:left;margin-top:10px">';
+
+        //Add Blurb
+        this.EmailString+='<p style="text-align:center;font-weight:bold">'+this.blurb+'</p>'
+
+        //Add principles if any...
+        if(this.principles.length >0) {
+            this.EmailString+='<p style="text-align:center;font-weight:bold">Principles:</p>';
+            this.EmailString+='<ul style="font-size:12px">'+ this.principles +'</ul></div>';
+        }
+
+        //Add practices if any...
+        if(this.principles.length >0) {
+            this.EmailString+='<p style="text-align:center;font-weight:bold">Practices:</p>';
+            this.EmailString+='<ul style="font-size:12px">'+ this.principles +'</ul></div>';
+        }
+
+        this.EmailString+='</div>';
+
+    }
 
     this.EmailString+='</div></body></html>';
 
