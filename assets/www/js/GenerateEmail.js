@@ -13,11 +13,11 @@ function Email(title,date,images,captions,notes,followupexperience,evaluation,ty
     this.evaluation = evaluation;
 
     this.background = background;
-    if(this.background == "A") { this.background = "lightgreen" }
-    if(this.background == "B") { this.background = "lightslategray" }
-    if(this.background == "C") { this.background = "teal" }
-    if(this.background == "D") { this.background = "lightblue" }
-    if(this.background == "E") { this.background = "white" }
+    if(this.background == "A") { this.background = "#90EE90" }
+    if(this.background == "B") { this.background = "#778899" }
+    if(this.background == "C") { this.background = "#008080" }
+    if(this.background == "D") { this.background = "#ADD8E6" }
+    if(this.background == "E") { this.background = "#FFFFFF" }
 
     this.font = font;
     if(this.font == "A") { this.font = "cursive" }
@@ -26,9 +26,9 @@ function Email(title,date,images,captions,notes,followupexperience,evaluation,ty
     if(this.font == "D") { this.font = "palatino" }
 
     this.fontcolour = colour;
-    if(this.fontcolour == "A") { this.fontcolour = "black" }
-    if(this.fontcolour == "B") { this.fontcolour = "white" }
-    if(this.fontcolour == "C") { this.fontcolour = "blue" }
+    if(this.fontcolour == "A") { this.fontcolour = "#000000" }
+    if(this.fontcolour == "B") { this.fontcolour = "#FFFFFF" }
+    if(this.fontcolour == "C") { this.fontcolour = "SkyBlue" }
 
     this.template = template;
 
@@ -53,7 +53,7 @@ function Email(title,date,images,captions,notes,followupexperience,evaluation,ty
         this.practices+= '<li style="margin-bottom: 1em;">' + practices[i] + '</li>';
     }
 
-    if(this.practices.length > 0 || this.practices.length > 0) {
+    if(this.practices.length > 0 || this.principles.length > 0) {
         this.blurb = "Educators have carefully considered the following pedagogical principles and practices to promote learning and assist the child to make progress in relation to the Learning Outcomes.";
     }
 
@@ -147,12 +147,11 @@ Email.prototype.GenerateEmail = function(template) {
     }
 
     if(this.images == 0) {
-        this.EmailString+='<div style="width:600px;height:200px;float:left;margin-top:10px"></div>';
     }
 
     if(this.images == 1) {
         this.EmailString+='<div style="width:600px;height:200px;float:left;margin-top:10px">' +
-            '<img src="a.jpg" width="193" height="200" style="border:none;margin:0px 0px 0px 200px;float:left;">' +
+            '<img src="1.jpg" width="193" height="200" style="border:none;margin:0px 0px 0px 200px;float:left;">' +
             '</div>';
 
         this.EmailString+='<div style="width:600px;height:20px;float:left;">'+
@@ -162,8 +161,8 @@ Email.prototype.GenerateEmail = function(template) {
 
     if(this.images == 2) {
         this.EmailString+='<div style="width:600px;height:200px;float:left;margin-top:10px">' +
-            '<img src="a.jpg" width="193" height="200" style="border:none;margin:0px 10px 0px 105px;float:left;">' +
-            '<img src="a.jpg" width="193" height="200" style="border:none;margin:0px 0px 0px 0px;float:left;">' +
+            '<img src="1.jpg" width="193" height="200" style="border:none;margin:0px 10px 0px 105px;float:left;">' +
+            '<img src="2.jpg" width="193" height="200" style="border:none;margin:0px 0px 0px 0px;float:left;">' +
             '</div>';
 
         this.EmailString+='<div style="width:600px;height:20px;float:left;">'+
@@ -174,9 +173,9 @@ Email.prototype.GenerateEmail = function(template) {
 
     if(this.images == 3) {
         this.EmailString+='<div style="width:600px;height:200px;float:left;margin-top:10px">' +
-            '<img src="a.jpg" width="193" height="200" style="border:none;margin:0px 10px 0px 0px;float:left;">'+
-            '<img src="a.jpg" width="193" height="200" style="border:none;margin:0px 10px 0px 0px;float:left;">'+
-            '<img src="a.jpg" width="193" height="200" style="border:none;margin:0px 0px 0px 0px;float:left;">'+
+            '<img src="1.jpg" width="193" height="200" style="border:none;margin:0px 10px 0px 0px;float:left;">'+
+            '<img src="2.jpg" width="193" height="200" style="border:none;margin:0px 10px 0px 0px;float:left;">'+
+            '<img src="3.jpg" width="193" height="200" style="border:none;margin:0px 0px 0px 0px;float:left;">'+
         '</div>';
 
         this.EmailString+='<div style="width:600px;height:20px;float:left;">'+
@@ -199,14 +198,14 @@ Email.prototype.GenerateEmail = function(template) {
         else {
             width= 295;
         }
-        this.EmailString+='<div style="'+ width +'px;float:left;margin:0px 10px 0px 0px;">'+
+        this.EmailString+='<div style="width:'+ width +'px;float:left;margin:0px 0px 0px 5px;">'+
             '<p style="text-align:center;font-weight:bold">Evaluation</p>'+
             '<p style="font-size:12px">'+ this.evaluation +'</p>'+
             '<p style="text-align:center;font-weight:bold">Follow-Up Experience</p>'+
             '<p style="font-size:12px">'+ this.follow +'</p>' +
             '</div>';
 
-        this.EmailString+='<div style="'+ width +'px;float:left;margin:0px 0px 0px 0px;">'+
+        this.EmailString+='<div style="width:'+ width +'px;float:left;margin:0px 0px 0px 0px;">'+
             '<p style="text-align:center;font-weight:bold">Learning Outcomes</p>'+
             '<ul style="font-size:12px">'+ this.fstring +'</ul></div>';
     }
@@ -236,21 +235,21 @@ Email.prototype.GenerateEmail = function(template) {
 
     if(this.principles.length > 0 || this.practices.length > 0) {
 
-        this.EmailString+= '<!-- Principles & Practices --><div style="width:600px;float:left;margin-top:10px">';
+        this.EmailString+= '<!-- Principles & Practices --><div style="width:600px;float:left;margin:10px 0px 0px 0px;">';
 
         //Add Blurb
-        this.EmailString+='<p style="text-align:center;font-weight:bold">'+this.blurb+'</p>'
+        this.EmailString+='<p style="text-align:left;font-style:italic">'+this.blurb+'</p>'
 
         //Add principles if any...
         if(this.principles.length >0) {
             this.EmailString+='<p style="text-align:center;font-weight:bold">Principles:</p>';
-            this.EmailString+='<ul style="font-size:12px">'+ this.principles +'</ul></div>';
+            this.EmailString+='<ul style="font-size:12px">'+ this.principles +'</ul>';
         }
 
         //Add practices if any...
         if(this.principles.length >0) {
             this.EmailString+='<p style="text-align:center;font-weight:bold">Practices:</p>';
-            this.EmailString+='<ul style="font-size:12px">'+ this.principles +'</ul></div>';
+            this.EmailString+='<ul style="font-size:12px">'+ this.principles +'</ul>';
         }
 
         this.EmailString+='</div>';

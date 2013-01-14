@@ -812,16 +812,13 @@ function onSubmitReport() {
 
     //List of image captions
     var captions = [];
-    for(var i=0;i<ReportCheckBoxesCaption.length; i++) {
-        captions[i] = ReportCheckBoxesCaption[i].getAttribute('caption');
-    }
 
     //List of notes
     var NOTES = ReportCheckBoxesNotes;
 
     //Get email address
     var email = document.getElementById("eInputReport").value;
-    var other = document.getElementById("TRInput").value;
+    var other = document.getElementById("TRinput").value;
 
     //Get follow up & evaluation if any
     var followup = $("#followuptext").val();
@@ -832,7 +829,7 @@ function onSubmitReport() {
     SendData.title = title;
     SendData.date = date;
     SendData.images = images.length;
-    SendData.captions = captions;
+    SendData.captions = ReportCheckBoxesCaption;
     SendData.notes = NOTES;
     SendData.email = email;
     SendData.cc = other;
@@ -847,7 +844,7 @@ function onSubmitReport() {
     SendData.principles = SelectedPrinciples;
     SendData.practices = SelectedPractices;
 
-    SendData.uuid = "LOLOLOL";//device.uuid;
+    SendData.uuid = device.uuid;
     SendData.template = ReportTemplate;
 
     if(SendData.email == "" || SendData.email == null || validateEmail(SendData.email) == false) {
@@ -1420,11 +1417,11 @@ function PracticesCheck(e) {
 
         <div class="ui-grid-a">
             <div class="ui-block-a">
-                <div href="" onclick="onTemplateClick('A')" class="ui-bar ui-bar-a" style="height:205px;text-align: center; background-image:url(img/rsz_templateone.png);background-position:center;background-repeat:no-repeat;cursor:pointer;"></div>
+                <div href="" onclick="onTemplateClick('A')" class="ui-bar ui-bar-a" style="height:205px;text-align: center; background-image:url(img/rsz_templatetwo.png);background-position:center;background-repeat:no-repeat;cursor:pointer;"></div>
 
             </div>
             <div class="ui-block-b">
-                <div href="" onclick="onTemplateClick('B')" class="ui-bar ui-bar-b" style="height:205px;text-align: center;background-image:url(img/rsz_templatetwo.png);background-position:center;background-repeat:no-repeat;cursor:pointer;"></div>
+                <div href="" onclick="onTemplateClick('B')" class="ui-bar ui-bar-b" style="height:205px;text-align: center;background-image:url(img/rsz_templateone.png);background-position:center;background-repeat:no-repeat;cursor:pointer;"></div>
             </div>
         </div><!-- /grid-b -->
 

@@ -27,8 +27,8 @@ var ReportDate = null;
 var ReportNotes = null;
 var ReportImages = null;
 
-var ReportCheckBoxesNotes = null;
-var ReportCheckBoxesImages = null;
+var ReportCheckBoxesNotes = [];
+var ReportCheckBoxesImages = [];
 var ReportCheckBoxesCaption = [];
 
 var SelectedBackground = "E";
@@ -45,6 +45,7 @@ var TemplateTwo = {images : 3};
 var TemplateThree = {images : 3};
 var TemplateFour = {images : 3};
 
+ReportTemplate = "A";
 var ReportType = "";
 var ReportOutcomes = [];
 var SendData = {};
