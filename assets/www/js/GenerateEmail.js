@@ -151,7 +151,7 @@ Email.prototype.GenerateEmail = function(template) {
 
     if(this.images == 1) {
         this.EmailString+='<div style="width:600px;height:200px;float:left;margin-top:10px">' +
-            '<img src="1.jpg" width="193" height="200" style="border:none;margin:0px 0px 0px 200px;float:left;">' +
+            '<img src="cid:1.jpg" width="193" height="200" style="border:none;margin:0px 0px 0px 200px;float:left;">' +
             '</div>';
 
         this.EmailString+='<div style="width:600px;height:20px;float:left;">'+
@@ -161,8 +161,8 @@ Email.prototype.GenerateEmail = function(template) {
 
     if(this.images == 2) {
         this.EmailString+='<div style="width:600px;height:200px;float:left;margin-top:10px">' +
-            '<img src="1.jpg" width="193" height="200" style="border:none;margin:0px 10px 0px 105px;float:left;">' +
-            '<img src="2.jpg" width="193" height="200" style="border:none;margin:0px 0px 0px 0px;float:left;">' +
+            '<img src="cid:1.jpg" width="193" height="200" style="border:none;margin:0px 10px 0px 105px;float:left;">' +
+            '<img src="cid:2.jpg" width="193" height="200" style="border:none;margin:0px 0px 0px 0px;float:left;">' +
             '</div>';
 
         this.EmailString+='<div style="width:600px;height:20px;float:left;">'+
@@ -173,9 +173,9 @@ Email.prototype.GenerateEmail = function(template) {
 
     if(this.images == 3) {
         this.EmailString+='<div style="width:600px;height:200px;float:left;margin-top:10px">' +
-            '<img src="1.jpg" width="193" height="200" style="border:none;margin:0px 10px 0px 0px;float:left;">'+
-            '<img src="2.jpg" width="193" height="200" style="border:none;margin:0px 10px 0px 0px;float:left;">'+
-            '<img src="3.jpg" width="193" height="200" style="border:none;margin:0px 0px 0px 0px;float:left;">'+
+            '<img src="cid:1.jpg" width="193" height="200" style="border:none;margin:0px 10px 0px 0px;float:left;">'+
+            '<img src="cid:2.jpg" width="193" height="200" style="border:none;margin:0px 10px 0px 0px;float:left;">'+
+            '<img src="cid:3.jpg" width="193" height="200" style="border:none;margin:0px 0px 0px 0px;float:left;">'+
         '</div>';
 
         this.EmailString+='<div style="width:600px;height:20px;float:left;">'+
