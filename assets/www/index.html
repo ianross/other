@@ -492,19 +492,18 @@ function onFail(message) {
 function onTermSelection(term) {
     ReportTerm = term;
     $('#choosetermlist').empty();
-    $('#choosetermlist').append('<li data-theme="e" style="text-align:center" class="ui-li ui-li-static ui-body-e"> My Children </li>');
+    $('#choosetermlist').append('<li data-theme="e" style="text-align:center;background-image:none; text-shadow:none; background-color:#9FADBF;" class="ui-li ui-li-static ui-body-e"> My Children </li>');
     GenerateChooseTermList();
-    location.href = '#ChooseStudentTerm';
 }
 
 function GenerateChooseTermList() {
     if(ReportTerm) {
         for(var i=0; i<Students.length; i++) {
             if (Students[i][ReportTerm] == 0 || ReportTerm == "Other" ) {
-                var li = $('<li style="text-align:center; background-image:none; cursor:pointer;border-left:1px solid #AAA; border-right:1px solid #AAA; border-bottom:1px solid #AAA; background-color:#CD5555" class="ui-li ui-li-static">' + Students[i].name + '</li>');
+                var li = $('<li style="text-align:center; background-image:none; text-shadow:none; color:#f5f5f5; cursor:pointer;border-left:1px solid #AAA; border-right:1px solid #AAA; border-bottom:1px solid #AAA; background-color:#F62817" class="ui-li ui-li-static">' + Students[i].name + '</li>');
             }
             else {
-                var li = $('<li style="text-align:center; background-image:none; cursor:pointer;border-left:1px solid #AAA; border-right:1px solid #AAA; border-bottom:1px solid #AAA; background-color:#EEE9E9" class="ui-li ui-li-static">' + Students[i].name + '</li>');
+                var li = $('<li style="text-align:center; background-image:none; text-shadow:none; color:#f5f5f5; cursor:pointer;border-left:1px solid #AAA; border-right:1px solid #AAA; border-bottom:1px solid #AAA; background-color:#16e2f5" class="ui-li ui-li-static">' + Students[i].name + '</li>');
 
             }
             $(li)[0].onclick = onChooseTermListStudentClick;
@@ -762,7 +761,7 @@ function GenerateReportNotes() {
             $(labelContainer).append(spanC);
             $(spanC).append(spanChildA,spanChildB);
 
-            var li = $('<li style="text-align:center;cursor:pointer;" data-theme="c" class="ui-li ui-li-static ui-body-c"></li>');
+            var li = $('<li style="text-align:center;cursor:pointer; background-image:none; background:none;border-bottom:0px; margin-bottom:0px; margin-top:0px; padding-top:0px; padding-bottom:0px" data-theme="c" class="ui-li ui-li-static ui-body-c"></li>');
             $(li).append(divContainer);
 
             li[0].setAttribute("checked","false");
@@ -1031,9 +1030,7 @@ function PracticesCheck(e) {
         <div data-role="collapsible" data-collapsed = "true" data-theme = "a">
             <h3>Create Learning Story</h3>
 
-            <div data-role="controlgroup">
-                <a id="FReport" onclick="onTermSelection('TermOne');" data-role="button">Generate Learning Story</a>
-            </div>
+            <a onclick="onTermSelection('TermOne');" href="#ChooseStudentTerm"  data-role="button">Generate Learning Story</a>
 
         </div>
 
@@ -1085,7 +1082,7 @@ function PracticesCheck(e) {
     <div data-role="content">
 
         <ul id="editlist" data-role="listview" data-theme="b" style="margin-top:10px">
-            <li data-theme="e" style="text-align:center"> My Children </li>
+            <li data-theme="e" style="text-align:center;background-image:none; text-shadow:none; background-color:#9FADBF;"> My Children </li>
         </ul>
 
         <div class="ui-grid-b" style="margin-top:30px">
@@ -1167,7 +1164,7 @@ function PracticesCheck(e) {
 
 
         <ul id="deletelist" data-role="listview" data-theme="b" style="margin-top:10px">
-            <li data-theme="e" style="text-align:center"> My Children </li>
+            <li data-theme="e" style="text-align:center;background-image:none; text-shadow:none; background-color:#9FADBF;"> My Children </li>
         </ul>
 
         <div class="ui-grid-b" style="margin-top:30px">
@@ -1192,7 +1189,7 @@ function PracticesCheck(e) {
 
         <fieldset class="ui-grid-a" style="">
             <div class="ui-block-a"> <input id="Tinput" type="text" name="name" id="basic" value=""  placeholder="Teacher's Email" /></div>
-            <div class="ui-block-b"> <a style="margin-top:10px" onclick="UpdateTeacherEmail()" data-mini="true" data-role="button" data-icon="check" data-inline="true">Update</a></div>
+            <div class="ui-block-b"> <a style="margin-top:10px" onclick="UpdateTeacherEmail()" data-theme="i" data-mini="true" data-role="button" data-icon="check" data-inline="true">Update</a></div>
         </fieldset>
 
         <div class="ui-grid-b" style="margin-top:30px">
@@ -1235,7 +1232,7 @@ function PracticesCheck(e) {
     <div data-role="content">
 
         <ul id="captureimagelist" data-role="listview" data-theme="b" style="margin-top:10px">
-            <li data-theme="e" style="text-align:center"> My Children </li>
+            <li data-theme="e" style="text-align:center;background-image:none; text-shadow:none; background-color:#9FADBF;"> My Children </li>
         </ul>
 
         <div class="ui-grid-b" style="margin-top:30px">
@@ -1258,7 +1255,7 @@ function PracticesCheck(e) {
     <div data-role="content">
 
         <ul id="capturenotelist" data-role="listview" data-theme="b" style="margin-top:10px">
-            <li data-theme="e" style="text-align:center"> My Children </li>
+            <li data-theme="e" style="text-align:center;background-image:none; text-shadow:none; background-color:#9FADBF;"> My Children </li>
         </ul>
 
         <div class="ui-grid-b" style="margin-top:30px">
@@ -1299,7 +1296,7 @@ function PracticesCheck(e) {
 <!-- Start of third page: #EditNotePage -->
 <div data-role="page" id="EditNotePage">
 
-    <div data-role="header" data-theme="c">
+    <div data-role="header" data-theme="e">
         <h1>Edit Note</h1>
     </div>
 
@@ -1376,19 +1373,19 @@ function PracticesCheck(e) {
 
         <div class="ui-grid-a">
             <div class="ui-block-a center-wrapper">
-                <div id="redlegend"  style="width: 15px; height: 15px; float:right; margin-left:5px; margin-right:10px; margin-top:5px; background-color:#BF3030"></div>
+                <div id="redlegend"  style="width: 15px; height: 15px; float:right; margin-left:5px; margin-right:10px; margin-top:5px; background-color:#F62817"></div>
                 <label for="" style="text-align: right; margin-top:3px; float:right;">Not Submitted:</label>
 
             </div>
             <div class="ui-block-b center-wrapper">
 
                 <label for="" style="text-align: right; float:left; margin-right:5px; margin-left:10px; margin-top:5px;">Submitted:</label>
-                <div id="greylegend"  style="width: 15px; height: 15px; float:left; margin-top:5px;  background-color:#DDD"></div>
+                <div id="greylegend"  style="width: 15px; height: 15px; float:left; margin-top:5px;  background-color:#52D017"></div>
 
             </div>
         </div>
         <ul id="choosetermlist" data-role="listview" data-theme="" style="margin-top:10px">
-            <li data-theme="" style="text-align:center"> My Children </li>
+            <li data-theme="" style="text-align:center;background-image:none; text-shadow:none; background-color:#9FADBF;"> My Children </li>
         </ul>
 
         <div class="ui-grid-b" style="margin-top:30px">
@@ -1398,9 +1395,9 @@ function PracticesCheck(e) {
 
     </div><!-- /content -->
 
-    <div data-role="footer" class="footer-docs ui-footer" data-theme="" style="background-color: ''" role="contentinfo">
+    <div data-role="footer" class="footer-docs ui-footer" data-theme="" style="background-color: #1589FF;border:0px; background-image:none;" role="contentinfo">
         <div data-role="controlgroup" class="ui-footer ui-controlgroup-horizontall" data-type="horizontal" style="text-align:center">
-            <a onclick="ClearHistory()" data-theme="e" data-role="button" data-icon="minus" style="text-align:center; margin-top:5px; margin-bottom:5px;">Clear Submission History</a>
+            <a onclick="ClearHistory()" data-theme="i" data-role="button" data-icon="minus" style="text-align:center; margin-top:5px; margin-bottom:5px; color:black">Clear Submission History</a>
         </div>
     </div>
 </div><!-- /page Choose Student Term -->
@@ -1475,7 +1472,7 @@ function PracticesCheck(e) {
 <div data-role="collapsible" data-collapsed = "true" data-theme = "c">
     <h3>Observations</h3>
 
-    <ul id="ReportNotes" data-role="listview" data-theme="b" style="margin-top:10px">
+    <ul id="ReportNotes" data-role="listview" data-theme="b" style="margin-top:10px;margin-bottom: 10px">
     </ul>
 </div>
 
@@ -1612,9 +1609,9 @@ function PracticesCheck(e) {
 <div data-role="collapsible" data-collapsed = "true" data-theme = "h">
     <h3>Style Options</h3>
     <div data-role="set">
-        <a href="#choosefont" data-role="button" data-rel="dialog" data-transition="pop">Choose Font</a>
-        <a href="#choosefontcolour" data-role="button" data-rel="dialog" data-transition="pop">Choose Font Colour</a>
-        <a href="#choosebackground" data-role="button" data-rel="dialog" data-transition="pop">Choose Background</a>
+        <a href="#choosefont" data-role="button" data-rel="dialog" data-transition="pop" style="font-weight: bold;">Choose Font</a>
+        <a href="#choosefontcolour" data-role="button" data-rel="dialog" data-transition="pop" style="font-weight: bold;">Choose Font Colour</a>
+        <a href="#choosebackground" data-role="button" data-rel="dialog" data-transition="pop" style="font-weight: bold;">Choose Background</a>
     </div>
 </div>
 </div>
@@ -1815,11 +1812,13 @@ function PracticesCheck(e) {
     $('#ReportFill').bind('pageinit', function() {
         $("#eInputReport").val(CurrentStudent.Parent);
         $("#TRinput").val(Globals.teacher);
+        $("#ReportTitle").val(CurrentStudent.name + "'s Learning Story");
     });
 
     $('#ReportFill').bind('pageshow', function() {
         $("#eInputReport").val(CurrentStudent.Parent);
         $("#TRinput").val(Globals.teacher);
+        $("#ReportTitle").val(CurrentStudent.name + "'s Learning Story");
     });
 
     $('#four').bind('pageinit', function() {

@@ -38,7 +38,7 @@ Application.prototype.UpdateAllContent = function() {
         }
 
         for(var i =0; i<this.UpdateContent.length; i++) {
-            $(this.UpdateContent[i]).append('<li data-theme="e" style="text-align:center" class="ui-li ui-li-static ui-body-e"> My Children </li>');
+            $(this.UpdateContent[i]).append('<li data-theme="e" style="text-align:center;background-image:none; text-shadow:none; background-color:#9FADBF;" class="ui-li ui-li-static ui-body-e"> My Children </li>');
         }
 
         GenerateList();
