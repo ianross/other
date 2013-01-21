@@ -84,6 +84,8 @@ var data = {
 
 function PrepData() {
 
+    $.mobile.allowCrossDomainPages = true;
+
     uploadingPhoto();
 
     var tests = ["OutcomeOne", "OutcomeTwo", "OutcomeThree","OutcomeFour","OutcomeFive"]
@@ -182,6 +184,8 @@ function TryUploadImages() {
 
 function TryUploadData() {
 
+    uploadingPhoto();
+
     var emailObj = new Email(SendData.title, SendData.date, SendData.images, SendData.captions, SendData.notes, SendData.followupexperience, SendData.evaluation, SendData.type, SendData.Background, SendData.Font, SendData.template, SendData.outcomes, SendData.FontColour, SendData.principles, SendData.practices);
     var emailString = emailObj.GenerateEmail(SendData.template);
 
@@ -196,6 +200,7 @@ function TryUploadData() {
 
         cache: false,
         success: function(response, status, obj){
+            uploadPhotoCB();
             alert("Report Submitted");
             if(ReportTerm == 0 || ReportTerm == "Other" ) {
 

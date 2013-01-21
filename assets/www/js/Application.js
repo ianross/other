@@ -27,7 +27,7 @@ var Application = (function(){
 
         this.UpdateNotes = [];
         this.UpdateNotes.push($('#noteslist'));
-        this.UpdateNotes.push($('#ReportNotes'))
+        this.UpdateNotes.push($('#ReportNotes'));
 	
 	}
 

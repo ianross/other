@@ -50,6 +50,8 @@ var ReportType = "";
 var ReportOutcomes = [];
 var SendData = {};
 
+var CaptionLoading = false;
+
 function errorHandler(transaction, error) {
     alert('Error: ' + error.message + ' code: ' + error.code);
 
@@ -128,7 +130,6 @@ function updateImagesSuccess() {
 }
 
 function updateImageDeleteSuccess() {
-    console.log(CallbackData);
     CurrentStudent.images = CallbackData;
     Application.UpdateStudentsImages();
     CallbackData = null;

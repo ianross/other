@@ -32,12 +32,21 @@
 
 <script src="js/db.js"></script>
 
+
 <script>
 
-document.addEventListener("deviceready",onDeviceReady,false);
+$(function() {
+    document.addEventListener("deviceready",onDeviceReady,true);
+});
 
 function onDeviceReady() {
 
+    if(navigator.splashscreen) {
+
+        setTimeout(function() {
+            navigator.splashscreen.hide();
+        }, 2000);
+    }
 }
 
 
@@ -503,7 +512,7 @@ function GenerateChooseTermList() {
                 var li = $('<li style="text-align:center; background-image:none; text-shadow:none; color:#f5f5f5; cursor:pointer;border-left:1px solid #AAA; border-right:1px solid #AAA; border-bottom:1px solid #AAA; background-color:#F62817" class="ui-li ui-li-static">' + Students[i].name + '</li>');
             }
             else {
-                var li = $('<li style="text-align:center; background-image:none; text-shadow:none; color:#f5f5f5; cursor:pointer;border-left:1px solid #AAA; border-right:1px solid #AAA; border-bottom:1px solid #AAA; background-color:#16e2f5" class="ui-li ui-li-static">' + Students[i].name + '</li>');
+                var li = $('<li style="text-align:center; background-image:none; text-shadow:none; color:#f5f5f5; cursor:pointer;border-left:1px solid #AAA; border-right:1px solid #AAA; border-bottom:1px solid #AAA; background-color:#52D017" class="ui-li ui-li-static">' + Students[i].name + '</li>');
 
             }
             $(li)[0].onclick = onChooseTermListStudentClick;
@@ -519,10 +528,63 @@ function onChooseTermListStudentClick(e) {
     CurrentStudent = Students[array_index];
     Application.UpdateStudentsImages();
     Application.UpdateStudentNotes();
+
+    //Clear Everything ye ye
+    //Set Email Values
+    $("#eInputReport").val(CurrentStudent.Parent);
+    $("#TRinput").val(Globals.teacher);
+
+    //Set Title
+    $("#ReportTitle").val(CurrentStudent.name + "'s Learning Story");
+
+    //Set Date
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth()+1;
+    var yyyy = today.getFullYear();
+    if(dd<10){dd='0'+dd}
+    if(mm<10){mm='0'+mm}
+    today = dd +'/'+mm+'/'+yyyy;
+    $("#ReportDate").val(today);
+
+    //Restore Style Defaults
+    SelectedBackground = "E";
+    SelectedFont = "A";
+    SelectedFontColour = "A";
+
+    //Clear Evaluation & Followup
+    $("#followuptext").val("");
+    $("#evaluationtext").val("");
+
+    //Clear Principles & Practices
+    if($("input[type='checkbox']").attr("checked",false)[0].parentNode.className != "") {
+        $("input[type='checkbox']").attr("checked",false).checkboxradio("refresh");
+    }
+    SelectedPractices = [];
+    SelectedPrinciples = [];
+
+    //Clear Outcomes
+    ReportOutcomes = [];
+
+    //Clear Notes
+    ReportCheckBoxesNotes = [];
+    $('#ReportNotes').empty();
+    GenerateReportNotes();
+
+    //Clear Images
+    ReportCheckBoxesCaption = [];
+    ReportCheckBoxesImages = [];
+    $('#ReportImages').empty();
+    GenerateReportImageGrid();
+
+
     location.href = "#ChooseTemplate";
 }
 
 function onTemplateClick(template) {
+
+    uploadingPhoto();
+
     if(template == 'A') { Template = TemplateOne; ReportTemplate = "A"; }
     if(template == 'B') { Template = TemplateTwo; ReportTemplate = "B";}
     if(template == 'C') { Template = TemplateThree; ReportTemplate = "C";}
@@ -532,6 +594,9 @@ function onTemplateClick(template) {
 }
 
 function saveCaption (none) {
+
+    CaptionLoading = false;
+
     if(none) { ReportCheckBoxesCaption.push("");}
     else {
         var text = $(document.getElementById('captiontext')).val();
@@ -700,46 +765,52 @@ function GenerateReportImageGrid() {
 
 function onImagesCheckboxClick(e) {
 
-    var isChecked = this.li.getAttribute("checked");
+    if(CaptionLoading == false) {
 
-    if(isChecked == "true") {
-        $(this.x).removeClass('ui-icon-checkbox-on');
-        $(this.y).removeClass('ui-checkbox-on');
-        $(this.x).addClass('ui-icon-checkbox-off');
-        $(this.y).addClass('ui-checkbox-off');
-        this.li.setAttribute("checked","false");
+        var isChecked = this.li.getAttribute("checked");
 
-        //var index = ReportCheckBoxesImages.indexOf(this.image);
-        //ReportCheckBoxesImages.splice(index, 1);
-        //ReportCheckBoxesCaption.splice(index, 1);
+        if(isChecked == "true") {
+
+            $(this.x).removeClass('ui-icon-checkbox-on');
+            $(this.y).removeClass('ui-checkbox-on');
+            $(this.x).addClass('ui-icon-checkbox-off');
+            $(this.y).addClass('ui-checkbox-off');
+            this.li.setAttribute("checked","false");
+
+            //var index = ReportCheckBoxesImages.indexOf(this.image);
+            //ReportCheckBoxesImages.splice(index, 1);
+            //ReportCheckBoxesCaption.splice(index, 1);
 
 
-        //Rebuild Captions array...
-        var listImages = $("div[id^='ListImage']");
+            //Rebuild Captions array...
+            var listImages = $("div[id^='ListImage']");
 
-        ReportCheckBoxesImages = [];
-        ReportCheckBoxesCaption = [];
+            ReportCheckBoxesImages = [];
+            ReportCheckBoxesCaption = [];
 
-        for(var i = 0; i<listImages.length; i++) {
-            if(listImages[i].getAttribute("checked") == "true") {
-                ReportCheckBoxesImages.push(listImages[i].getAttribute("link"));
-                ReportCheckBoxesCaption.push(listImages[i].getAttribute("caption"));
+            for(var i = 0; i<listImages.length; i++) {
+                if(listImages[i].getAttribute("checked") == "true") {
+                    ReportCheckBoxesImages.push(listImages[i].getAttribute("link"));
+                    ReportCheckBoxesCaption.push(listImages[i].getAttribute("caption"));
+                }
             }
         }
-    }
-    else {
-        if(ReportCheckBoxesImages.length < Template.images) {
-            $(this.x).removeClass('ui-icon-checkbox-off');
-            $(this.y).removeClass('ui-checkbox-off');
-            $(this.x).addClass('ui-icon-checkbox-on');
-            $(this.y).addClass('ui-checkbox-on');
-            this.li.setAttribute("checked","true");
+        else {
+            if(ReportCheckBoxesImages.length < Template.images) {
 
-            ReportCheckBoxesImages.push(this.image);
-            location.href = "#addcaption";
+                CaptionLoading = true;
 
+                $(this.x).removeClass('ui-icon-checkbox-off');
+                $(this.y).removeClass('ui-checkbox-off');
+                $(this.x).addClass('ui-icon-checkbox-on');
+                $(this.y).addClass('ui-checkbox-on');
+                this.li.setAttribute("checked","true");
 
+                ReportCheckBoxesImages.push(this.image);
+                location.href = "#addcaption";
+            }
         }
+
     }
 }
 
@@ -761,7 +832,7 @@ function GenerateReportNotes() {
             $(labelContainer).append(spanC);
             $(spanC).append(spanChildA,spanChildB);
 
-            var li = $('<li style="text-align:center;cursor:pointer; background-image:none; background:none;border-bottom:0px; margin-bottom:0px; margin-top:0px; padding-top:0px; padding-bottom:0px" data-theme="c" class="ui-li ui-li-static ui-body-c"></li>');
+            var li = $('<li style="text-align:center;cursor:pointer; background-image:none; background:none;border:0px; margin-bottom:0px; margin-top:0px; padding-top:0px; padding-bottom:0px" data-theme="c" class="ui-li ui-li-static ui-body-c"></li>');
             $(li).append(divContainer);
 
             li[0].setAttribute("checked","false");
@@ -989,6 +1060,8 @@ function PracticesCheck(e) {
     else {
         SelectedPractices.splice( $.inArray(checkboxText, SelectedPractices), 1 );
     }
+
+
 }
 
 </script>
@@ -1034,6 +1107,85 @@ function PracticesCheck(e) {
 
         </div>
 
+        <!-- START OF POPUPS -->
+
+        <!-- INDEX POPUPS
+
+        <div data-role="popup" id="ErrorMaxImages">
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            Maximum number of images for student exceeded
+        </div>
+
+        <div data-role="popup" id="ErrorEmailTeacher">
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            You must enter an email for the teacher
+        </div>
+
+        <div data-role="popup" id="ErrorStudentName">
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            You must enter a name for the student
+        </div>
+
+        <div data-role="popup" id="ErrorEmailAddress">
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            You must input an email address
+        </div>
+
+        <div data-role="popup" id="ErrorValidEmailAddress">
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            Must enter a valid email
+        </div>
+
+        <div data-role="popup" id="ErrorTitle">
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            Must enter a title for the report
+        </div>
+
+        <div data-role="popup" id="ErrorDate">
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            Must enter a date for the report
+        </div>
+-->
+        <!-- DATA JS POPUPS
+
+        <div data-role="popup" id="PopReportSubmitted">
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            Report Submitted
+        </div>
+
+        <div data-role="popup" id="ErrorImageFail">
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            Image could not be uploaded. Please ensure you have an active internet connection
+        </div>
+-->
+
+        <!-- DB JS POPUPS
+
+        <div data-role="popup" id="PopChildAdd">
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            Child Successfully Added to Class
+        </div>
+
+        <div data-role="popup" id="PopEmailChange">
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            Email Address Successfully Updated
+        </div>
+
+        <div data-role="popup" id="PopTeacherEmailChange">
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            Teacher's Email Address Successfully Updated
+        </div>
+
+        <div data-role="popup" id="PopChildInfoUpdate">
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            Child Information Successfully Updated
+        </div>
+
+        <div data-role="popup" id="PopChildNotesUpdated">
+            <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+            Child Observations Successfully Updated
+        </div>
+-->
 
 
     </div>
@@ -1059,7 +1211,7 @@ function PracticesCheck(e) {
 
         <div class="ui-grid-solo" style="margin-top:30px">
 
-            <a onclick="AddStudent()" data-mini="false" data-role="button" data-icon="plus" style="">Add Child</a>
+            <a onclick="AddStudent()" data-mini="false" data-role="button" data-icon="plus" style=""  data-theme="i">Add Child</a>
         </div>
 
 
@@ -1689,7 +1841,7 @@ function PracticesCheck(e) {
     <div data-role="content">
 
         <div class="ui-grid-solo">
-            <ul data-role="listview">
+            <ul data-role="listview" data-theme="i">
                 <li style="cursor:pointer" onclick="SelectedFont = 'A'; document.getElementById('fontClose').click();">
                     <h3 style="font-family:cursive">Cursive</h3>
                     <p style="font-family:cursive">Click here to select this font</p>
@@ -1725,7 +1877,7 @@ function PracticesCheck(e) {
     <div data-role="content">
 
         <div class="ui-grid-solo">
-            <ul data-role="listview">
+            <ul data-role="listview" data-theme="i">
                 <li style="cursor:pointer" onclick="SelectedFontColour = 'A';document.getElementById('colourClose').click();">
                     <h3 style="color:black">Black</h3>
                     <p>Click here to select this font colour</p>
@@ -1759,7 +1911,7 @@ function PracticesCheck(e) {
     <div data-role="content">
 
         <div class="ui-grid-solo">
-            <ul data-role="listview">
+            <ul data-role="listview" data-theme="i">
                 <li onclick="SelectedBackground = 'A';document.getElementById('bgClose').click();">
                     <h3>Light Green</h3>
                     <p>Click to Choose</p>
@@ -1792,8 +1944,6 @@ function PracticesCheck(e) {
 
 <!-- End of Report Generation Pages -->
 
-<!-- End of Report Generation Pages -->
-
 
 
 <script>
@@ -1806,19 +1956,66 @@ function PracticesCheck(e) {
 <script src="js/GenerateEmail.js"></script>
 
 <script>
-    $('#OutcomeSelection').bind('pageinit', function() {
-    });
-
-    $('#ReportFill').bind('pageinit', function() {
-        $("#eInputReport").val(CurrentStudent.Parent);
-        $("#TRinput").val(Globals.teacher);
-        $("#ReportTitle").val(CurrentStudent.name + "'s Learning Story");
-    });
 
     $('#ReportFill').bind('pageshow', function() {
+
+
+        /*
+        //Set Email Values
         $("#eInputReport").val(CurrentStudent.Parent);
         $("#TRinput").val(Globals.teacher);
+
+        //Set Title
         $("#ReportTitle").val(CurrentStudent.name + "'s Learning Story");
+
+        //Set Date
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1;
+        var yyyy = today.getFullYear();
+        if(dd<10){dd='0'+dd}
+        if(mm<10){mm='0'+mm}
+        today = dd +'/'+mm+'/'+yyyy;
+        $("#ReportDate").val(today);
+
+        //Restore Style Defaults
+        SelectedBackground = "E";
+        SelectedFont = "A";
+        SelectedFontColour = "A";
+
+        //Clear Evaluation & Followup
+        $("#followuptext").val("");
+        $("#evaluationtext").val("");
+
+        //Clear Principles & Practices
+        $("input[type='checkbox']").attr("checked",false).checkboxradio("refresh");
+        SelectedPractices = [];
+        SelectedPrinciples = [];
+
+        //Clear Outcomes
+        ReportOutcomes = [];
+
+        //Clear Notes
+        ReportCheckBoxesNotes = [];
+        $('#ReportNotes').empty();
+        GenerateReportNotes();
+
+        //Clear Images
+        ReportCheckBoxesCaption = [];
+        ReportCheckBoxesImages = [];
+        $('#ReportImages').empty();
+        GenerateReportImageGrid();
+        */
+
+        $.mobile.hidePageLoadingMsg();
+    });
+
+    $('#ReportFill').bind('pagebeforeshow', function() {
+        $.mobile.showPageLoadingMsg();
+    });
+
+    $('#ReportFill').bind('pagebeforehide', function() {
+
     });
 
     $('#four').bind('pageinit', function() {
@@ -1837,6 +2034,9 @@ function PracticesCheck(e) {
     $('#four').bind('pageshow', function() {
         $("#UEinput").val(CurrentStudent.Parent);
     });
+
+
+
 
 </script>
 
